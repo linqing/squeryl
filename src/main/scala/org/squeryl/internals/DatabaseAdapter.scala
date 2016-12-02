@@ -43,7 +43,7 @@ trait DatabaseAdapter {
   implicit def zipIterable[T](i: Iterable[T]) = new ZipIterable(i)
 
   def writeQuery(qen: QueryExpressionElements, sw: StatementWriter):Unit =
-    writeQuery(qen, sw, false, None)
+    writeQuery(qen, sw, inverseOrderBy = false, None)
 
   /**
    * Should we verify that when we delete by primary key the JDBC driver reports
@@ -84,7 +84,7 @@ trait DatabaseAdapter {
     
     sw.nextLine
     sw.writeIndented {
-      sw.writeNodesWithSeparator(qen.selectList.filter(e => ! e.inhibited), ",", true)
+      sw.writeNodesWithSeparator(qen.selectList.filter(e => ! e.inhibited), ",", newLineAfterSeparator = true)
     }
     sw.nextLine
     sw.write("From")
@@ -137,7 +137,7 @@ trait DatabaseAdapter {
       sw.write("Group By")
       sw.nextLine
       sw.writeIndented {
-        sw.writeNodesWithSeparator(qen.groupByClause.filter(e => ! e.inhibited), ",", true)
+        sw.writeNodesWithSeparator(qen.groupByClause.filter(e => ! e.inhibited), ",", newLineAfterSeparator = true)
       }
       sw.pushPendingNextLine
     }
@@ -146,7 +146,7 @@ trait DatabaseAdapter {
       sw.write("Having")
       sw.nextLine
       sw.writeIndented {
-        sw.writeNodesWithSeparator(qen.havingClause.filter(e => ! e.inhibited), ",", true)
+        sw.writeNodesWithSeparator(qen.havingClause.filter(e => ! e.inhibited), ",", newLineAfterSeparator = true)
       }
       sw.pushPendingNextLine
     }
@@ -157,7 +157,7 @@ trait DatabaseAdapter {
       val ob0 = qen.orderByClause.filter(e => ! e.inhibited)
       val ob = if(inverseOrderBy) ob0.map(_.asInstanceOf[OrderByExpression].inverse) else ob0
       sw.writeIndented {
-        sw.writeNodesWithSeparator(ob, ",", true)
+        sw.writeNodesWithSeparator(ob, ",", newLineAfterSeparator = true)
       }
       sw.pushPendingNextLine
     }
@@ -537,7 +537,7 @@ trait DatabaseAdapter {
   def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) = {
     sw.write(fn.name)
     sw.write("(")
-    sw.writeNodesWithSeparator(fn.args, ",", false)
+    sw.writeNodesWithSeparator(fn.args, ",", newLineAfterSeparator = false)
     sw.write(")")    
   }
 

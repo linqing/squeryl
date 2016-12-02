@@ -132,7 +132,7 @@ trait QueryDsl
     new fsm.QueryElementsImpl[Conditioned](Some(b _), Nil)
 
   def withCte(queries: Query[_]*): WithState =
-    new fsm.WithState(queries.toList.map(_.copy(false, Nil)))
+    new fsm.WithState(queries.toList.map(_.copy(asRoot = false, Nil)))
 
   def &[A,T](i: =>TypedExpression[A,T]): A =
     FieldReferenceLinker.pushExpressionOrCollectValue[A](i _)
@@ -190,9 +190,9 @@ trait QueryDsl
   def lower[A1,T1](s: TypedExpression[A1,T1])(implicit f: TypedExpressionFactory[A1,T1], ev2: T1 <:< TOptionString) = 
     f.convert(new FunctionNode("lower", Seq(s)))
 
-  def exists[A1](query: Query[A1]) = new ExistsExpression(query.copy(false, Nil).ast, "exists")
+  def exists[A1](query: Query[A1]) = new ExistsExpression(query.copy(asRoot = false, Nil).ast, "exists")
 
-  def notExists[A1](query: Query[A1]) = new ExistsExpression(query.copy(false, Nil).ast, "not exists")
+  def notExists[A1](query: Query[A1]) = new ExistsExpression(query.copy(asRoot = false, Nil).ast, "not exists")
          
   implicit val numericComparisonEvidence   = new CanCompare[TNumeric, TNumeric]         
   implicit val dateComparisonEvidence      = new CanCompare[TOptionDate, TOptionDate]
@@ -258,7 +258,7 @@ trait QueryDsl
       if(isDistinct)
         sw.write("distinct ")
 
-      sw.writeNodesWithSeparator(args, ",", false)
+      sw.writeNodesWithSeparator(args, ",", newLineAfterSeparator = false)
       sw.write(")")
     }
   }
@@ -439,9 +439,9 @@ trait QueryDsl
       ).headOption != None
 
 
-    private val (leftPkFmd, leftFkFmd) = _splitEquality(_leftEqualityExpr, thisTable, false)
+    private val (leftPkFmd, leftFkFmd) = _splitEquality(_leftEqualityExpr, thisTable, isSelfReference = false)
 
-    private val (rightPkFmd, rightFkFmd) = _splitEquality(_rightEqualityExpr, thisTable, false)
+    private val (rightPkFmd, rightFkFmd) = _splitEquality(_rightEqualityExpr, thisTable, isSelfReference = false)
 
     val leftForeignKeyDeclaration =
       schema._createForeignKeyDeclaration(leftFkFmd.columnName, leftPkFmd.columnName)
