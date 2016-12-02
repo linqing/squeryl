@@ -424,15 +424,14 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       ca.clearColumnAttributes
 
     for(ca <- colAss) ca match {
-      case dva:DefaultValueAssignment    => {
+      case dva:DefaultValueAssignment    =>
 
         if(! dva.value.isInstanceOf[ConstantTypedExpression[_,_]])
           org.squeryl.internals.Utils.throwError("error in declaration of column "+ table.prefixedName + "." + dva.left.nameOfProperty + ", " +
                 "only constant expressions are supported in 'defaultsTo' declaration")
 
         dva.left._defaultValue = Some(dva.value.asInstanceOf[ConstantTypedExpression[_,_]])
-      }
-      case caa:ColumnAttributeAssignment => {
+      case caa:ColumnAttributeAssignment =>
 
         for(ca <- caa.columnAttributes)
           (caa.left._addColumnAttribute(ca))
@@ -440,16 +439,14 @@ class Schema(implicit val fieldMapper: FieldMapper) {
         //don't allow a KeyedEntity.id field to not have a uniqueness constraint :
         if(ca.isIdFieldOfKeyedEntityWithoutUniquenessConstraint)
           caa.left._addColumnAttribute(primaryKey)
-      }
-      case ctaa:ColumnGroupAttributeAssignment => {
+      case ctaa:ColumnGroupAttributeAssignment =>
 
         //don't allow a KeyedEntity.id field to not have a uniqueness constraint :
         if(ca.isIdFieldOfKeyedEntityWithoutUniquenessConstraint)
           ctaa.addAttribute(primaryKey)
 
         _addColumnGroupAttributeAssignment(ctaa)
-      }
-      
+
       case a:Any => org.squeryl.internals.Utils.throwError("did not match on " + a.getClass.getName)
     }
 
@@ -465,13 +462,12 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     // Validate that autoIncremented is not used on other fields than KeyedEntity[A].id :
     // since it is not yet unsupported :
     for(ca <- colAss) ca match {
-      case cga:CompositeKeyAttributeAssignment => {}
-      case caa:ColumnAttributeAssignment => {
+      case cga:CompositeKeyAttributeAssignment =>
+      case caa:ColumnAttributeAssignment =>
         for(ca <- caa.columnAttributes if ca.isInstanceOf[AutoIncremented] && !(caa.left.isIdFieldOfKeyedEntity))
           org.squeryl.internals.Utils.throwError("Field " + caa.left.nameOfProperty + " of table " + table.name +
                 " is declared as autoIncremented, auto increment is currently only supported on KeyedEntity[A].id")
-      }
-      case dva:Any => {}
+      case dva:Any =>
     }
   }
 

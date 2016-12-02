@@ -248,9 +248,8 @@ class ResultSetMapper extends ResultSetUtils {
         fm.map(o, resultSet)      
     }
     catch {
-      case e:Exception=> {
+      case e:Exception=>
         throw new RuntimeException("could not map row :\n" + dumpRow(resultSet) + "\n with mapper :\n" + this, e)
-      }
     }
   }
 }

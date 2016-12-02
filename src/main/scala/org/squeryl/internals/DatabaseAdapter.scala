@@ -645,16 +645,14 @@ trait DatabaseAdapter {
       sw.write(" = ")
       val v = z.element
       col.explicitDbTypeDeclaration match {
-        case Some(dbType) if col.explicitDbTypeCast => {
+        case Some(dbType) if col.explicitDbTypeCast =>
           sw.write("cast(")
           v.write(sw)
           sw.write(s" as ${sw.quoteName(dbType)})")
-        }
-        case _ => {
+        case _ =>
           sw.write("(")
           v.write(sw)
           sw.write(")")
-        }
       }
       if(!z.isLast) {
         sw.write(",")

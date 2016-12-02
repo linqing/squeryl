@@ -47,15 +47,15 @@ object Utils {
 
   def close(s: Statement) =
     try {s.close}
-    catch {case e:SQLException => {}}
+    catch {case e:SQLException =>}
 
   def close(rs: ResultSet) =
     try {rs.close}
-    catch {case e:SQLException => {}}
+    catch {case e:SQLException =>}
 
   def close(c: Connection) =
     try {c.close}
-    catch {case e:SQLException => {}}
+    catch {case e:SQLException =>}
     
   private class DummyQueryElements[Cond](override val whereClause: Option[()=>LogicalBoolean]) extends QueryElements[Cond]
   

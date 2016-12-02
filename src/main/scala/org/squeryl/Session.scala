@@ -60,10 +60,9 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
       txOk = true
       res
     } catch {
-      case e: ControlThrowable => {
+      case e: ControlThrowable =>
         txOk = true
         throw e
-      }
     } finally {
       if (hasConnection) {
         try {
@@ -79,18 +78,16 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
             connection.setTransactionIsolation(originalTransactionIsolation)
           }
         } catch {
-          case e: SQLException => {
+          case e: SQLException =>
             Utils.close(connection)
             if (txOk) throw e // if an exception occured b4 the commit/rollback we don't want to obscure the original exception
-          }
         }
         try {
           if (!connection.isClosed)
             connection.close
         } catch {
-          case e: SQLException => {
+          case e: SQLException =>
             if (txOk) throw e // if an exception occured b4 the close we don't want to obscure the original exception
-          }
         }
       }
     }
@@ -118,10 +115,9 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
       try {
         connection.getTransactionIsolation
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           Utils.close(connection)
           throw e
-        }
       }
     var txOk = false
     try {
@@ -129,10 +125,9 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
       txOk = true
       res
     } catch {
-      case e: ControlThrowable => {
+      case e: ControlThrowable =>
         txOk = true
         throw e
-      }
     } finally {
       try {
         try {
@@ -147,18 +142,16 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
           connection.setTransactionIsolation(originalTransactionIsolation)
         }
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           Utils.close(connection)
           if (txOk) throw e // if an exception occured b4 the commit/rollback we don't want to obscure the original exception
-        }
       }
       try {
         if (!connection.isClosed)
           connection.close
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           if (txOk) throw e // if an exception occured b4 the close we don't want to obscure the original exception
-        }
       }
     }
   }

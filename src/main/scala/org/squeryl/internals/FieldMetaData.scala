@@ -333,11 +333,10 @@ class FieldMetaData(
         _setWithField(target, actualValue)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         val typeOfV = if(v == null) "null" else v.getClass.getCanonicalName
         org.squeryl.internals.Utils.throwError(
           this + " was invoked with value '" + v + "' of type " + typeOfV + " on object of type " + target.getClass.getName + " \n" + e)
-      }
     }
 
   }
@@ -593,32 +592,30 @@ object FieldMetaData {
 	       * we'll see Object instead of scala.X
 	       */
 	      t match {
-	        case Some(pt: ParameterizedType) => {
-	          pt.getActualTypeArguments.toList match {
-	            case oType :: Nil => {
-	              if(classOf[Class[_]].isInstance(oType)) {
-	                /*
-	                 * Primitive types are seen by Java reflection as classOf[Object], 
-	                 * if that's what we find then we need to get the real value from @ScalaSignature
-	                 */
-	                val trueTypeOption = 
-	                  if (classOf[Object] == oType) optionTypeFromScalaSig(member)
-	                  else Some(oType.asInstanceOf[Class[_]])
-	                trueTypeOption flatMap { trueType =>
-	                  val deduced = createDefaultValue(fieldMapper, member, trueType, None, optionFieldsInfo)
-	                  if (deduced != null)
-	                    Some(deduced)
-	                  else
-	                    None //Couldn't create default for type param
-	                }
-	              } else{
-	            	  None //Type parameter is not a Class
-	              }
-	            }
-	            case _ => None //Not a single type parameter
-	          }
-	        }
-	        case _ => None //Not a parameterized type
+	        case Some(pt: ParameterizedType) =>
+            pt.getActualTypeArguments.toList match {
+              case oType :: Nil =>
+if(classOf[Class[_]].isInstance(oType)) {
+/*
+* Primitive types are seen by Java reflection as classOf[Object],
+* if that's what we find then we need to get the real value from @ScalaSignature
+*/
+val trueTypeOption =
+if (classOf[Object] == oType) optionTypeFromScalaSig(member)
+else Some(oType.asInstanceOf[Class[_]])
+trueTypeOption flatMap { trueType =>
+val deduced = createDefaultValue(fieldMapper, member, trueType, None, optionFieldsInfo)
+if (deduced != null)
+Some(deduced)
+else
+None //Couldn't create default for type param
+}
+} else{
+None //Type parameter is not a Class
+}
+case _ => None //Not a single type parameter
+            }
+          case _ => None //Not a parameterized type
 	      } 
       }
     } 
