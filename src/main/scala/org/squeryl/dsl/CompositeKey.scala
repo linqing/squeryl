@@ -75,7 +75,7 @@ trait CompositeKey {
   }
 }
 
-case class CompositeKey2[A1,A2](val a1:A1, val a2: A2)(
+case class CompositeKey2[A1,A2](a1:A1, a2: A2)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _])
@@ -97,7 +97,7 @@ case class CompositeKey2[A1,A2](val a1:A1, val a2: A2)(
 
 }
 
-case class CompositeKey3[A1,A2,A3](val a1:A1, val a2: A2, val a3: A3)(
+case class CompositeKey3[A1,A2,A3](a1:A1, a2: A2, a3: A3)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -119,7 +119,7 @@ case class CompositeKey3[A1,A2,A3](val a1:A1, val a2: A2, val a3: A3)(
   protected def constantMembers: Iterable[TypedExpression[_,_]] = List(a1, a2, a3)
 }
 
-case class CompositeKey4[A1,A2,A3,A4](val a1:A1, val a2: A2, val a3: A3, val a4: A4)(
+case class CompositeKey4[A1,A2,A3,A4](a1:A1, a2: A2, a3: A3, a4: A4)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -143,7 +143,7 @@ case class CompositeKey4[A1,A2,A3,A4](val a1:A1, val a2: A2, val a3: A3, val a4:
 }
 
 
-case class CompositeKey5[A1,A2,A3,A4,A5](val a1:A1, val a2: A2, val a3: A3, val a4: A4, val a5: A5)(
+case class CompositeKey5[A1,A2,A3,A4,A5](a1:A1, a2: A2, a3: A3, a4: A4, a5: A5)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -166,7 +166,7 @@ case class CompositeKey5[A1,A2,A3,A4,A5](val a1:A1, val a2: A2, val a3: A3, val 
 
   protected def constantMembers: Iterable[TypedExpression[_,_]] = List(a1, a2, a3, a4, a5)
 }
-case class CompositeKey6[A1,A2,A3,A4,A5,A6](val a1:A1, val a2: A2, val a3: A3, val a4: A4, val a5: A5, val a6: A6)(
+case class CompositeKey6[A1,A2,A3,A4,A5,A6](a1:A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -191,7 +191,7 @@ case class CompositeKey6[A1,A2,A3,A4,A5,A6](val a1:A1, val a2: A2, val a3: A3, v
   protected def constantMembers: Iterable[TypedExpression[_,_]] = List(a1, a2, a3, a4, a5, a6)
 }
 
-case class CompositeKey7[A1,A2,A3,A4,A5,A6,A7](val a1:A1, val a2: A2, val a3: A3, val a4: A4, val a5: A5, val a6: A6, val a7: A7)(
+case class CompositeKey7[A1,A2,A3,A4,A5,A6,A7](a1:A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -217,7 +217,7 @@ case class CompositeKey7[A1,A2,A3,A4,A5,A6,A7](val a1:A1, val a2: A2, val a3: A3
   protected def constantMembers: Iterable[TypedExpression[_,_]] = List(a1, a2, a3, a4, a5, a6, a7)
 }
 
-case class CompositeKey8[A1,A2,A3,A4,A5,A6,A7,A8](val a1:A1, val a2: A2, val a3: A3, val a4: A4, val a5: A5, val a6: A6, val a7: A7, val a8: A8)(
+case class CompositeKey8[A1,A2,A3,A4,A5,A6,A7,A8](a1:A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
@@ -244,7 +244,7 @@ case class CompositeKey8[A1,A2,A3,A4,A5,A6,A7,A8](val a1:A1, val a2: A2, val a3:
   protected def constantMembers: Iterable[TypedExpression[_,_]] = List(a1, a2, a3, a4, a5, a6, a7, a8)
 }
 
-case class CompositeKey9[A1,A2,A3,A4,A5,A6,A7,A8,A9](val a1:A1, val a2: A2, val a3: A3, val a4: A4, val a5: A5, val a6: A6, val a7: A7, val a8: A8,val a9: A9)(
+case class CompositeKey9[A1,A2,A3,A4,A5,A6,A7,A8,A9](a1:A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9)(
     implicit
       ev1: A1 => TypedExpression[A1, _],
       ev2: A2 => TypedExpression[A2, _],
