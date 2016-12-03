@@ -30,10 +30,10 @@ object Utils {
    * and we need to log as much info as possible (i.e. put as much info as possible in the 'black box').
    * Also used to allow dumping (ex. for logging) a Query AST *before* it is completely built.
    */
-  def failSafeString(s: =>String) =
+  def failSafeString(s: =>String): String =
     _failSafeString(s _, "cannot evaluate")
 
-  def failSafeString(s: =>String, valueOnFail: String) =
+  def failSafeString(s: =>String, valueOnFail: String): String =
     _failSafeString(s _, valueOnFail)
 
   private def _failSafeString(s: ()=>String, valueOnFail: String) =
@@ -44,15 +44,15 @@ object Utils {
       case e:Exception => valueOnFail
     }
 
-  def close(s: Statement) =
+  def close(s: Statement): Unit =
     try {s.close}
     catch {case e:SQLException =>}
 
-  def close(rs: ResultSet) =
+  def close(rs: ResultSet): Unit =
     try {rs.close}
     catch {case e:SQLException =>}
 
-  def close(c: Connection) =
+  def close(c: Connection): Unit =
     try {c.close}
     catch {case e:SQLException =>}
     
@@ -108,9 +108,9 @@ object Utils {
 
 class IteratorConcatenation[R](first: Iterator[R], second: Iterator[R]) extends Iterator[R] {
 
-  var currentIterator = first
+  var currentIterator: Iterator[R] = first
     
-  def _hasNext =
+  def _hasNext: Boolean =
     if(currentIterator.hasNext) 
       true
     else if(currentIterator == second)
@@ -120,9 +120,9 @@ class IteratorConcatenation[R](first: Iterator[R], second: Iterator[R]) extends 
       currentIterator.hasNext
     }
 
-  def hasNext = _hasNext
+  def hasNext: Boolean = _hasNext
   
-  def next = {
+  def next: R = {
     _hasNext
     currentIterator.next
   }
