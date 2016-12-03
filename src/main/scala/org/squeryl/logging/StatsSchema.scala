@@ -42,7 +42,7 @@ class StatementInvocation(
     this(null, 0, 0, 0, 0, 0, 0, Some(0), Some(0))
 
   def statementId =
-    new CompositeKey2(statementHash, statementHashCollisionNumber)
+    CompositeKey2(statementHash, statementHashCollisionNumber)
 
   def executeTime =
     end minus start
@@ -66,7 +66,7 @@ class Statement(val sql: String, val definitionOrCallSite: String, val hash: Int
   def this() = this("", "", 0, 0)
 
   def id =
-    new CompositeKey2(hash, statementHashCollisionNumber)
+    CompositeKey2(hash, statementHashCollisionNumber)
 }
 
 class StatLine(val statement: Statement, val avgExecTime: Double, val invocationCount: Long, val cumulativeExecutionTime: Long, val avgRowCount: Float) {
