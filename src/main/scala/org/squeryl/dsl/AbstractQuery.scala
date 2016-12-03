@@ -302,7 +302,7 @@ abstract class AbstractQuery[R](
         else
           queryable.give(resultSetMapper, rs)
       }
-      else if ((node.isRightJoined) && resultSetMapper.isNoneInOuterJoin(rs))
+      else if (node.isRightJoined && resultSetMapper.isNoneInOuterJoin(rs))
         sample
       else
         queryable.give(resultSetMapper, rs)

@@ -218,10 +218,10 @@ class FieldMetaData(
     wrappedFieldType.isAssignableFrom(classOf[String])
 
   def displayType =
-    (if (isOption)
+    if (isOption)
       "Option[" + fieldType.getName + "]"
     else
-      fieldType.getName)
+      fieldType.getName
 
   /**
     * When true, will cause Schema generation to declare as PrimaryKey, Note that for
@@ -390,10 +390,10 @@ object FieldMetaData {
        * Retrieve the member in use, its class and its generic type
        */
       val (member, clsOfField, typeOfField) =
-        (setter.map(s => (s: Member, s.getParameterTypes.head, s.getGenericParameterTypes.head))
+        setter.map(s => (s: Member, s.getParameterTypes.head, s.getGenericParameterTypes.head))
           .orElse(getter.map(g => (g: Member, g.getReturnType, g.getGenericReturnType)))
           .orElse(field.map(f => (f: Member, f.getType, f.getType)))
-          .getOrElse(org.squeryl.internals.Utils.throwError("invalid field group")))
+          .getOrElse(org.squeryl.internals.Utils.throwError("invalid field group"))
 
       /*
        * Look for a value in the sample type.  If one exists and

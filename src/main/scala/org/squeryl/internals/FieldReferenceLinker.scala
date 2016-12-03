@@ -50,7 +50,7 @@ object FieldReferenceLinker {
     }
   }
 
-  def pushYieldValue(v: AnyRef) = {
+  def pushYieldValue(v: AnyRef): Unit = {
     var a = _yieldValues.get
     if (a == null) {
       a = new ArrayBuffer[AnyRef]
@@ -59,7 +59,7 @@ object FieldReferenceLinker {
     a.append(v)
   }
 
-  def isYieldInspectionMode = {
+  def isYieldInspectionMode: Boolean = {
     val yi = _yieldInspectionTL.get
     if (yi != null) {
       yi.isOn
@@ -69,7 +69,7 @@ object FieldReferenceLinker {
     }
   }
 
-  def inspectedQueryExpressionNode = _yieldInspectionTL.get.queryExpressionNode
+  def inspectedQueryExpressionNode: QueryExpressionNode[_] = _yieldInspectionTL.get.queryExpressionNode
 
   private val _yieldValues = new ThreadLocal[ArrayBuffer[AnyRef]]
 
@@ -112,9 +112,9 @@ object FieldReferenceLinker {
     var queryExpressionNode: QueryExpressionNode[_] = null
     var _resultSetMapper: ResultSetMapper = null
 
-    def isOn = _on
+    def isOn: Boolean = _on
 
-    def callWithoutReentrance[U](f: () => U) = {
+    def callWithoutReentrance[U](f: () => U): U = {
       val prev = _on
       _on = false
       val res = f()
@@ -122,25 +122,25 @@ object FieldReferenceLinker {
       res
     }
 
-    def addSelectElement(e: SelectElement) =
+    def addSelectElement(e: SelectElement): Unit =
       if (!e.inhibited) {
         _utilizedFields.append(e)
         e.prepareColumnMapper(_utilizedFields.size)
       }
 
-    def resultSetMapper = _resultSetMapper
+    def resultSetMapper: ResultSetMapper = _resultSetMapper
 
     private var _reentranceDepth = 0
 
-    def reentranceDepth = _reentranceDepth
+    def reentranceDepth: Int = _reentranceDepth
 
-    def incrementReentranceDepth() =
+    def incrementReentranceDepth(): Unit =
       _reentranceDepth += 1
 
-    def decrementReentranceDepth() =
+    def decrementReentranceDepth(): Unit =
       _reentranceDepth -= 1
 
-    def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
+    def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper): Unit = {
       _reentranceDepth = 0
       queryExpressionNode = q
       _on = true
@@ -154,7 +154,7 @@ object FieldReferenceLinker {
 
   private val _yieldInspectionTL = new ThreadLocal[YieldInspection]
 
-  def putLastAccessedSelectElement(e: SelectElement) = {
+  def putLastAccessedSelectElement(e: SelectElement): Unit = {
     if (isYieldInspectionMode) {
       _yieldInspectionTL.get.addSelectElement(new ExportedSelectElement(e))
     } else
@@ -187,7 +187,7 @@ object FieldReferenceLinker {
 
   def createEqualityExpressionWithLastAccessedFieldReferenceAndConstant(c: Any, lOpt: Option[SimpleKeyLookup[_]]): LogicalBoolean = {
     val left = _takeLastAccessedUntypedFieldReference
-    val right = lOpt map (l => l.convert.asInstanceOf[Any => TypedExpression[_, _]](c)) getOrElse (new InputOnlyConstantExpressionNode(c))
+    val right = lOpt map (l => l.convert.asInstanceOf[Any => TypedExpression[_, _]](c)) getOrElse new InputOnlyConstantExpressionNode(c)
 
     new BinaryOperatorNodeLogicalBoolean(left, right, "=")
   }
@@ -200,7 +200,7 @@ object FieldReferenceLinker {
     * if (the assumption) was broken.
     */
 
-  def determineColumnsUtilizedInYeldInvocation(q: QueryExpressionNode[_], rsm: ResultSetMapper, selectClosure: () => AnyRef) = {
+  def determineColumnsUtilizedInYeldInvocation(q: QueryExpressionNode[_], rsm: ResultSetMapper, selectClosure: () => AnyRef): (List[SelectElement], AnyRef) = {
 
     val yi = new YieldInspection
     _yieldInspectionTL.set(yi)
@@ -244,7 +244,7 @@ object FieldReferenceLinker {
     @volatile var _cache: Map[Class[_], Array[Field]] =
       Map[Class[_], Array[Field]]()
 
-    def apply(cls: Class[_]) =
+    def apply(cls: Class[_]): Array[Field] =
       _cache.get(cls) getOrElse {
         val declaredFields = cls.getDeclaredFields
         _cache += ((cls, declaredFields))
@@ -303,7 +303,7 @@ object FieldReferenceLinker {
 
   private class PosoPropertyAccessInterceptor(val viewExpressionNode: ViewExpressionNode[_]) extends MethodInterceptor {
 
-    def fmd4Method(m: Method) =
+    def fmd4Method(m: Method): Option[FieldMetaData] =
       viewExpressionNode.view.findFieldMetaDataForProperty(m.getName)
 
     def intercept(o: Object, m: Method, args: Array[Object], proxy: MethodProxy): Object = {

@@ -418,7 +418,7 @@ class TypeConversion(e: ExpressionNode) extends ExpressionNode {
 
   override def inhibited: Boolean = e.inhibited
 
-  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite(sw)
 
   override def children: List[ExpressionNode] = e.children
 }

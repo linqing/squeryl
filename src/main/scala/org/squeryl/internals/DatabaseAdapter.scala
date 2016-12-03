@@ -499,7 +499,7 @@ trait DatabaseAdapter {
       v = v.asInstanceOf[Product1[Any]]._1.asInstanceOf[AnyRef]
 
     v match {
-      case x: java.util.Date if (!v.isInstanceOf[java.sql.Date] && !v.isInstanceOf[Timestamp]) =>
+      case x: java.util.Date if !v.isInstanceOf[java.sql.Date] && !v.isInstanceOf[Timestamp] =>
         v = new java.sql.Date(x.getTime)
       case x: scala.math.BigDecimal =>
         v = x.bigDecimal
@@ -597,7 +597,7 @@ trait DatabaseAdapter {
           val ck = pkGetter.invoke(t0).asInstanceOf[CompositeKey]
 
           val fieldWhere = ck._fields map {
-            case fmd if (fmd.getNativeJdbcValue(o_) == null) =>
+            case fmd if fmd.getNativeJdbcValue(o_) == null =>
               quoteName(fmd.columnName) + " is null"
             case fmd =>
               quoteName(fmd.columnName) + " = " + writeValue(o_, fmd, sw)
