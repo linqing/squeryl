@@ -125,7 +125,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     ).flatten
 
   def isChild(q: QueryableExpressionNode):Boolean =
-    views.find(n => n == q).isDefined
+    views.exists(n => n == q)
 
   def selectDistinct: Boolean = _query.selectDistinct
 
