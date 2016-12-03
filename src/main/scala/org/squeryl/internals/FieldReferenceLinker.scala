@@ -15,13 +15,14 @@
  ***************************************************************************** */
 package org.squeryl.internals
 
-import net.sf.cglib.proxy._
-import collection.mutable.ArrayBuffer
-import org.squeryl.dsl.ast._
-import org.squeryl.dsl.CompositeKey
-import org.squeryl.dsl.TypedExpression
 import java.lang.reflect.{Field, Method}
+
+import net.sf.cglib.proxy._
 import org.squeryl._
+import org.squeryl.dsl.{CompositeKey, TypedExpression}
+import org.squeryl.dsl.ast._
+
+import scala.collection.mutable.ArrayBuffer
 
 object FieldReferenceLinker {
 

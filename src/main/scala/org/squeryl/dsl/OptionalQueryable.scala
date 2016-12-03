@@ -15,9 +15,10 @@
  ***************************************************************************** */
 package org.squeryl.dsl
 
+import java.sql.ResultSet
+
 import org.squeryl.Queryable
 import org.squeryl.internals.ResultSetMapper
-import java.sql.ResultSet
 
 
 class OptionalQueryable[A](val queryable: Queryable[A]) extends Queryable[Option[A]] {

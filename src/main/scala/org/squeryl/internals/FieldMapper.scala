@@ -16,18 +16,17 @@
 
 package org.squeryl.internals
 
-import scala.collection.mutable.HashMap
-import java.sql.ResultSet
-import java.sql.Timestamp
-import java.util.Date
-import java.util.UUID
-import org.squeryl.dsl._
-import org.squeryl.dsl.ArrayJdbcMapper
+import java.sql.{ResultSet, Timestamp}
+import java.util.{Date, UUID}
+
+import org.squeryl.dsl.{ArrayJdbcMapper, _}
+
+import scala.collection.mutable
 
 trait FieldMapper {
   outer =>
     
-  private val registry = new HashMap[Class[_],FieldAttributesBasedOnType[_]]
+  private val registry = new mutable.HashMap[Class[_],FieldAttributesBasedOnType[_]]
 
   implicit def thisFieldMapper = this
 

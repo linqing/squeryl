@@ -15,13 +15,12 @@
  ***************************************************************************** */
 package org.squeryl.internals
 
-import java.sql.{ResultSet, SQLException, Statement}
-import org.squeryl.dsl.boilerplate.Query1
+import java.sql.{Connection, ResultSet, SQLException, Statement}
+
 import org.squeryl.Queryable
+import org.squeryl.dsl.ast.{LogicalBoolean, QueryExpressionElements}
+import org.squeryl.dsl.boilerplate.Query1
 import org.squeryl.dsl.fsm.QueryElements
-import org.squeryl.dsl.ast.{QueryExpressionElements, LogicalBoolean}
-import java.lang.RuntimeException
-import java.sql.Connection
 
 object Utils {
 

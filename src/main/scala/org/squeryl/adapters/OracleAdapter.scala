@@ -15,15 +15,14 @@
  ***************************************************************************** */
 package org.squeryl.adapters
 
-import org.squeryl.{Session, Table}
-import org.squeryl.dsl.ast._
 import java.sql.SQLException
-import collection.Set
-import collection.immutable.List
-import collection.mutable.HashSet
-import org.squeryl.internals.{FieldMetaData, StatementWriter, DatabaseAdapter}
-import org.squeryl.internals.ConstantStatementParam
-import org.squeryl.InternalFieldMapper
+
+import org.squeryl.dsl.ast._
+import org.squeryl.internals.{ConstantStatementParam, DatabaseAdapter, FieldMetaData, StatementWriter}
+import org.squeryl.{InternalFieldMapper, Session, Table}
+
+import scala.collection.immutable.List
+import scala.collection.{Set, mutable}
 
 
 class OracleAdapter extends DatabaseAdapter {
@@ -198,7 +197,7 @@ class OracleAdapter extends DatabaseAdapter {
         org.squeryl.internals.Utils.throwError("could not make a unique identifier with '" + s + "'")
     }
 
-  def shrinkTo30AndPreserveUniquenessInScope(identifier: String, scope: HashSet[String]) =
+  def shrinkTo30AndPreserveUniquenessInScope(identifier: String, scope: mutable.HashSet[String]) =
     if(identifier.length <= 29)
       identifier
     else {

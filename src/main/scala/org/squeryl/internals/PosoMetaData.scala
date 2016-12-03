@@ -16,13 +16,15 @@
 package org.squeryl.internals
  
 
-import java.lang.Class
 import java.lang.annotation.Annotation
-import net.sf.cglib.proxy.{Factory, Callback, CallbackFilter, Enhancer, NoOp}
-import java.lang.reflect.{Member, Constructor, Method, Field, Modifier}
-import collection.mutable.{HashSet, ArrayBuffer}
-import org.squeryl.annotations._
+import java.lang.reflect.{Constructor, Field, Member, Method, Modifier}
+
+import net.sf.cglib.proxy._
 import org.squeryl._
+import org.squeryl.annotations._
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: View[T]) {
 
@@ -60,7 +62,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
           throw new RuntimeException("exception occurred while invoking constructor : " + constructor._1, e)
       }
     
-    val members = new ArrayBuffer[(Member,HashSet[Annotation])]
+    val members = new ArrayBuffer[(Member, mutable.HashSet[Annotation])]
 
     _fillWithMembers(clasz, members)
 
@@ -287,11 +289,11 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
   private def _includeAnnotation(a: Annotation) =
    a.isInstanceOf[ColumnBase] || a.isInstanceOf[Transient] || a.isInstanceOf[OptionType]
   
-  private def _addAnnotations(m: Field, s: HashSet[Annotation]) =
+  private def _addAnnotations(m: Field, s: mutable.HashSet[Annotation]) =
     for(a <- m.getAnnotations if _includeAnnotation(a))
       s.add(a)
 
-  private def _addAnnotations(m: Method, s: HashSet[Annotation]) =
+  private def _addAnnotations(m: Method, s: mutable.HashSet[Annotation]) =
     for(a <- m.getAnnotations if _includeAnnotation(a))
       s.add(a)
 
@@ -299,18 +301,18 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
     schema.fieldMapper.isSupported(c)
       //! classOf[Query[_]].isAssignableFrom(c)
 
-  private def _fillWithMembers(clasz: Class[_], members: ArrayBuffer[(Member,HashSet[Annotation])]) {
+  private def _fillWithMembers(clasz: Class[_], members: ArrayBuffer[(Member,mutable.HashSet[Annotation])]) {
 
     for(m <-clasz.getMethods if(m.getDeclaringClass != classOf[Object]) && _includeFieldOrMethodType(m.getReturnType)) {
       m.setAccessible(true)
-      val t = (m, new HashSet[Annotation])
+      val t = (m, new mutable.HashSet[Annotation])
       _addAnnotations(m, t._2)
       members.append(t)
     }
 
     for(m <- clasz.getDeclaredFields if (m.getName.indexOf("$") == -1) && _includeFieldOrMethodType(m.getType)) {
       m.setAccessible(true)
-      val t = (m, new HashSet[Annotation])
+      val t = (m, new mutable.HashSet[Annotation])
       _addAnnotations(m, t._2)
       members.append(t)
     }

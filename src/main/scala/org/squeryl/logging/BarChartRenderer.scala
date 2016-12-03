@@ -1,7 +1,7 @@
 package org.squeryl.logging
 
-import xml.Unparsed
 import java.io.{FileOutputStream, PrintStream}
+
 import org.squeryl.InternalFieldMapper._
 
 object BarChartRenderer {

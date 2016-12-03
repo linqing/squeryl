@@ -15,10 +15,12 @@
  ***************************************************************************** */
 package org.squeryl
 
-import logging.StatisticsListener
+import java.sql.{Connection, ResultSet, SQLException, Statement}
+
 import org.squeryl.internals._
-import collection.mutable.ArrayBuffer
-import java.sql.{SQLException, ResultSet, Statement, Connection}
+import org.squeryl.logging.StatisticsListener
+
+import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
 

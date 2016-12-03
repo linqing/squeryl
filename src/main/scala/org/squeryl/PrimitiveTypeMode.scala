@@ -16,10 +16,11 @@
 package org.squeryl
 
 
-import dsl.ast._
-import dsl._
-import java.util.{ Date, UUID }
 import java.sql.Timestamp
+import java.util.{Date, UUID}
+
+import org.squeryl.dsl._
+import org.squeryl.dsl.ast._
 import org.squeryl.internals.FieldMapper
 
 @deprecated("the PrimitiveTypeMode companion object is deprecated, you should define a mix in the trait for your application. See : http://squeryl.org/0.9.6.html",

@@ -1,10 +1,10 @@
 package org.squeryl.dsl
 
-import org.squeryl.Query
-import org.squeryl.internals.ResultSetMapper
 import java.sql.ResultSet
 
+import org.squeryl.Query
 import org.squeryl.dsl.ast.ExpressionNode
+import org.squeryl.internals.ResultSetMapper
 
 class DelegateQuery[M](val q: Query[M]) extends Query[M] {
 

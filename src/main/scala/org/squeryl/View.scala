@@ -15,10 +15,11 @@
  ***************************************************************************** */
 package org.squeryl
 
-import dsl.ast.ViewExpressionNode
-import dsl.{TypedExpression, QueryDsl}
-import internals._
 import java.sql.ResultSet
+
+import org.squeryl.dsl.ast.ViewExpressionNode
+import org.squeryl.dsl.{QueryDsl, TypedExpression}
+import org.squeryl.internals._
 
 /**
  * This class can be used for read only tables or (database) views

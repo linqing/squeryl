@@ -15,14 +15,16 @@
  ***************************************************************************** */
 package org.squeryl
 
-import dsl._
-import ast._
-import internals._
-import reflect.{Manifest}
-import java.sql.SQLException
 import java.io.PrintWriter
-import collection.mutable.{HashMap, HashSet, ArrayBuffer}
-import org.squeryl.internals.FieldMapper
+import java.sql.SQLException
+
+import org.squeryl.dsl._
+import org.squeryl.dsl.ast._
+import org.squeryl.internals.{FieldMapper, _}
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+import scala.reflect.Manifest
 
 class Schema(implicit val fieldMapper: FieldMapper) {
 
@@ -35,7 +37,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   
   def tables: Seq[Table[_]] = _tables.toSeq
   
-  private val _tableTypes = new HashMap[Class[_], Table[_]]
+  private val _tableTypes = new mutable.HashMap[Class[_], Table[_]]
 
   private val _oneToManyRelations = new ArrayBuffer[OneToManyRelation[_,_]]
 
@@ -43,7 +45,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
 
   private val _columnGroupAttributeAssignments = new ArrayBuffer[ColumnGroupAttributeAssignment]
 
-  private [squeryl] val _namingScope = new HashSet[String] 
+  private [squeryl] val _namingScope = new mutable.HashSet[String]
 
   private [squeryl] def _addRelation(r: OneToManyRelation[_,_]) =
     _oneToManyRelations.append(r)

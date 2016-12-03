@@ -18,8 +18,8 @@ package org.squeryl.dsl.boilerplate
 import java.sql.ResultSet
 
 import org.squeryl.dsl.ast.QueryExpressionNode
-import org.squeryl.internals.ResultSetMapper
 import org.squeryl.dsl.{AbstractQuery, QueryYield}
+import org.squeryl.internals.ResultSetMapper
 import org.squeryl.{Query, Queryable}
 
 class Query1[T1,R]

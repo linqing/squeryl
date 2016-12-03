@@ -15,13 +15,13 @@
  ***************************************************************************** */
 package org.squeryl.dsl.fsm
 
-import org.squeryl.dsl.ast._
-import org.squeryl.dsl._
-import org.squeryl.dsl.boilerplate._
-import org.squeryl.internals.{FieldReferenceLinker, ResultSetMapper, ColumnToTupleMapper, OutMapper}
 import java.sql.ResultSet
 
 import org.squeryl.Query
+import org.squeryl.dsl._
+import org.squeryl.dsl.ast._
+import org.squeryl.dsl.boilerplate._
+import org.squeryl.internals.{ColumnToTupleMapper, FieldReferenceLinker, OutMapper, ResultSetMapper}
 
 class BaseQueryYield[G]
   (val queryElementzz: QueryElements[_], val selectClosure: ()=>G)

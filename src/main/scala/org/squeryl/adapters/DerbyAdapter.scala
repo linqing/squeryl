@@ -15,10 +15,11 @@
  ***************************************************************************** */
 package org.squeryl.adapters
 
-import org.squeryl.Schema
-import org.squeryl.internals.{StatementWriter, FieldMetaData, DatabaseAdapter}
-import org.squeryl.dsl.ast._
 import java.sql.SQLException
+
+import org.squeryl.Schema
+import org.squeryl.dsl.ast._
+import org.squeryl.internals.{DatabaseAdapter, FieldMetaData, StatementWriter}
 
 class DerbyAdapter extends DatabaseAdapter {
 
