@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.squeryl.logging
 
-import org.squeryl.dsl.CompositeKey2
-import org.squeryl.{KeyedEntity, Schema}
+import org.squeryl.dsl.{CompositeKey2, GroupWithMeasures, TLong, TypedExpression}
+import org.squeryl.{KeyedEntity, Query, Schema, Table}
 
 object StatsSchemaTypeMode extends org.squeryl.PrimitiveTypeMode
 import org.squeryl.logging.StatsSchemaTypeMode._
@@ -44,7 +44,7 @@ class StatementInvocation(
   def statementId =
     CompositeKey2(statementHash, statementHashCollisionNumber)
 
-  def executeTime =
+  def executeTime: TypedExpression[Long, TLong] =
     end minus start
 }
 
@@ -70,24 +70,24 @@ class Statement(val sql: String, val definitionOrCallSite: String, val hash: Int
 }
 
 class StatLine(val statement: Statement, val avgExecTime: Double, val invocationCount: Long, val cumulativeExecutionTime: Long, val avgRowCount: Float) {
-  def definitionSite =
+  def definitionSite: String =
     statement.definitionOrCallSite
 }
 
 object Measure extends Enumeration {
    type Measure = Value
    val AvgExecTime, InvocationCount, CumulativeExecutionTime, AvgResultSetSize = Value
-} 
+}
 
 object StatsSchema extends Schema {
 
-  override def drop = super.drop
+  override def drop: Unit = super.drop
 
-  val statements = table[Statement]("Statementz")
+  val statements: Table[Statement] = table[Statement]("Statementz")
 
-  val statementInvocations = table[StatementInvocation]
+  val statementInvocations: Table[StatementInvocation] = table[StatementInvocation]
 
-  def invocationStats =
+  def invocationStats: Query[GroupWithMeasures[Product2[Int, Int], Product4[Option[Float], Long, Nothing, Float]]] =
     from(statementInvocations)((si) =>
       groupBy(si.statementHash, si.statementHashCollisionNumber)
       compute(avg(si.executeTime), count, sum(si.executeTime), nvl(avg(si.rowCount),0))
@@ -95,11 +95,11 @@ object StatsSchema extends Schema {
 
   import Measure._
 
-  def topRankingStatements(topN: Int, measure: Measure) =
+  def topRankingStatements(topN: Int, measure: Measure): Query[Nothing] =
     from(invocationStats, statements)((si,s)=>
       where(si.key._1 === s.hash and si.key._2 === s.statementHashCollisionNumber)
-      select(new StatLine(s, si.measures._1.get, si.measures._2, si.measures._3.get, si.measures._4))
-      orderBy(measure match {
+        .select(new StatLine(s, si.measures._1.get, si.measures._2, si.measures._3.get, si.measures._4))
+        .orderBy(measure match {
         case AvgExecTime => si.measures._1.desc
         case InvocationCount => si.measures._2.desc
         case CumulativeExecutionTime => si.measures._3.desc
@@ -111,9 +111,9 @@ object StatsSchema extends Schema {
   on(statements)(s=> declare(
     s.sql is(dbType("clob")),
     s.definitionOrCallSite is(dbType("varchar(512)"))
-  ))  
+  ))
 
-  def recordStatementInvocation(sie: StatementInvocationEvent) = {
+  def recordStatementInvocation(sie: StatementInvocationEvent): String = {
 
     val statementK = _lookupOrCreateStatementAndReturnKey(sie)
     val si = new StatementInvocation(sie, statementK.a1, statementK.a2)
@@ -121,7 +121,7 @@ object StatsSchema extends Schema {
     si.id
   }
 
-  def recordEndOfIteration(statementInvocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean) = {
+  def recordEndOfIteration(statementInvocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean): Int = {
 
     update(statementInvocations)(si =>
       where(si.id === statementInvocationId)
