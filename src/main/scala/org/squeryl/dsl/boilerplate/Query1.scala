@@ -23,7 +23,7 @@ import org.squeryl.internals.ResultSetMapper
 import org.squeryl.{Query, Queryable}
 
 class Query1[T1, R]
-(t1: Queryable[T1], f: Function1[T1, QueryYield[R]], isRoot: Boolean, unions: List[(String, Query[R])])
+(t1: Queryable[T1], f: (T1) => QueryYield[R], isRoot: Boolean, unions: List[(String, Query[R])])
   extends AbstractQuery[R](isRoot, unions) {
 
   val sq1: SubQueryable[T1] = createSubQueryable(t1)
@@ -41,7 +41,7 @@ class Query1[T1, R]
 class Query2[T1, T2, R](
                          t1: Queryable[T1],
                          t2: Queryable[T2],
-                         f: Function2[T1, T2, QueryYield[R]],
+                         f: (T1, T2) => QueryYield[R],
                          isRoot: Boolean,
                          unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -63,7 +63,7 @@ class Query3[T1, T2, T3, R](
                              t1: Queryable[T1],
                              t2: Queryable[T2],
                              t3: Queryable[T3],
-                             f: Function3[T1, T2, T3, QueryYield[R]],
+                             f: (T1, T2, T3) => QueryYield[R],
                              isRoot: Boolean,
                              unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -88,7 +88,7 @@ class Query4[T1, T2, T3, T4, R](
                                  t2: Queryable[T2],
                                  t3: Queryable[T3],
                                  t4: Queryable[T4],
-                                 f: Function4[T1, T2, T3, T4, QueryYield[R]],
+                                 f: (T1, T2, T3, T4) => QueryYield[R],
                                  isRoot: Boolean,
                                  unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -116,7 +116,7 @@ class Query5[T1, T2, T3, T4, T5, R](
                                      t3: Queryable[T3],
                                      t4: Queryable[T4],
                                      t5: Queryable[T5],
-                                     f: Function5[T1, T2, T3, T4, T5, QueryYield[R]],
+                                     f: (T1, T2, T3, T4, T5) => QueryYield[R],
                                      isRoot: Boolean,
                                      unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -150,7 +150,7 @@ class Query6[T1, T2, T3, T4, T5, T6, R](
                                          t4: Queryable[T4],
                                          t5: Queryable[T5],
                                          t6: Queryable[T6],
-                                         f: Function6[T1, T2, T3, T4, T5, T6, QueryYield[R]],
+                                         f: (T1, T2, T3, T4, T5, T6) => QueryYield[R],
                                          isRoot: Boolean,
                                          unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -187,7 +187,7 @@ class Query7[T1, T2, T3, T4, T5, T6, T7, R](
                                              t5: Queryable[T5],
                                              t6: Queryable[T6],
                                              t7: Queryable[T7],
-                                             f: Function7[T1, T2, T3, T4, T5, T6, T7, QueryYield[R]],
+                                             f: (T1, T2, T3, T4, T5, T6, T7) => QueryYield[R],
                                              isRoot: Boolean,
                                              unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -227,7 +227,7 @@ class Query8[T1, T2, T3, T4, T5, T6, T7, T8, R](
                                                  t6: Queryable[T6],
                                                  t7: Queryable[T7],
                                                  t8: Queryable[T8],
-                                                 f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, QueryYield[R]],
+                                                 f: (T1, T2, T3, T4, T5, T6, T7, T8) => QueryYield[R],
                                                  isRoot: Boolean,
                                                  unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
@@ -270,7 +270,7 @@ class Query9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](
                                                      t7: Queryable[T7],
                                                      t8: Queryable[T8],
                                                      t9: Queryable[T9],
-                                                     f: Function9[T1, T2, T3, T4, T5, T6, T7, T8, T9, QueryYield[R]],
+                                                     f: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => QueryYield[R],
                                                      isRoot: Boolean,
                                                      unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 

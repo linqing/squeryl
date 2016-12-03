@@ -542,7 +542,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
         .groupBy(_._1)
         .mapValues(_.map(_._2))
         .map(
-          (t: Tuple2[View[_], Seq[LifecycleEvent]]) => {
+          (t: (View[_], Seq[LifecycleEvent])) => {
             (t._1, new LifecycleEventInvoker(t._2, t._1)): (View[_], LifecycleEventInvoker)
           })
         .toMap

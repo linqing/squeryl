@@ -244,7 +244,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
       ).flatten
     }
 
-    _batchedUpdateOrInsert(e, buildFmds _, isInsert = false, checkOCC = checkOCC)
+    _batchedUpdateOrInsert(e, buildFmds, isInsert = false, checkOCC = checkOCC)
   }
 
   def update(s: T => UpdateStatement): Int = {

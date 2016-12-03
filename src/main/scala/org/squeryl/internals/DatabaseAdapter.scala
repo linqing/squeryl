@@ -409,7 +409,7 @@ trait DatabaseAdapter {
     catch {
       case e: SQLException =>
         if (silenceException(e))
-          sp.foreach(c.rollback(_))
+          sp.foreach(c.rollback)
         else
           throw SquerylSQLException(
             "Exception while executing statement,\n" +
@@ -417,7 +417,7 @@ trait DatabaseAdapter {
               sw.statement, e)
     }
     finally {
-      sp.foreach(c.releaseSavepoint(_))
+      sp.foreach(c.releaseSavepoint)
       Utils.close(stat)
     }
   }
@@ -792,7 +792,7 @@ trait DatabaseAdapter {
     sb.append(" add constraint ")
     sb.append(quoteName(t.prefixedName + "CPK"))
     sb.append(" unique(")
-    sb.append(cols.map(_.columnName).map(quoteName(_)).mkString(","))
+    sb.append(cols.map(_.columnName).map(quoteName).mkString(","))
     sb.append(")")
     sb.toString
   }
@@ -843,7 +843,7 @@ trait DatabaseAdapter {
 
     sb.append(quoteName(tableName))
 
-    sb.append(columnDefs.map(_.columnName).map(quoteName(_)).mkString(" (", ",", ")"))
+    sb.append(columnDefs.map(_.columnName).map(quoteName).mkString(" (", ",", ")"))
 
     sb.toString
   }
@@ -861,7 +861,7 @@ trait DatabaseAdapter {
 
   def quoteIdentifier(s: String) = s
 
-  def quoteName(s: String) = s.split('.').map(quoteIdentifier(_)).mkString(".")
+  def quoteName(s: String) = s.split('.').map(quoteIdentifier).mkString(".")
 
   def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement) =
     n.alias + "_" + fse.fieldMetaData.columnName

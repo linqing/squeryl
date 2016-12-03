@@ -149,7 +149,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
     sb.append("alter table ")
     sb.append(quoteName(t.prefixedName))
     sb.append(" add primary key (")
-    sb.append(cols.map(_.columnName).map(quoteName(_)).mkString(","))
+    sb.append(cols.map(_.columnName).map(quoteName).mkString(","))
     sb.append(")")
     sb.toString
   }

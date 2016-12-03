@@ -18,7 +18,7 @@ abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[Array[P], TE] with
   def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getArray(i)
 
   def convertToJdbc(v: Array[P]): java.sql.Array = {
-    val content: Array[java.lang.Object] = v.map(toWrappedJDBCType(_))
+    val content: Array[java.lang.Object] = v.map(toWrappedJDBCType)
     val s = Session.currentSession
     val con = s.connection
     var rv: java.sql.Array = null
