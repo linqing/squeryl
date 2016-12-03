@@ -47,12 +47,12 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     List(views.filter(v => ! v.inhibited),
          subQueries.filter(v => ! v.inhibited)).flatten
 
-  def isJoinForm = _queryYield.joinExpressions != Nil
+  def isJoinForm: Boolean = _queryYield.joinExpressions != Nil
 
   val (whereClause, havingClause, groupByClause, orderByClause, ctes) =
      _queryYield.queryElements
 
-  val commonTableExpressions = ctes.map { q =>
+  val commonTableExpressions: List[QueryExpressionNode[_]] = ctes.map { q =>
     if (! q.ast.isInstanceOf[QueryExpressionNode[_]]) {
       Utils.throwError("A common table expression AST must be a QueryExpressionNode, not a " +
         q.getClass.getSimpleName)
@@ -94,12 +94,12 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   def sample:AnyRef = _sample.get
 
-  def owns(aSample: AnyRef) = 
+  def owns(aSample: AnyRef): Boolean =
     _sample != None && _sample.get.eq(aSample)
   
   def getOrCreateSelectElement(fmd: FieldMetaData, forScope: QueryExpressionElements) = throw new UnsupportedOperationException("implement me")
 
-  override def toString = {
+  override def toString: String = {
     val sb = new java.lang.StringBuilder
     sb.append('QueryExpressionNode + "[")
     if(_query.isRoot)
@@ -110,7 +110,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     sb.toString
   }
 
-  override def children =
+  override def children: List[ExpressionNode] =
     List(
       selectList.toList,
       commonTableExpressions.toList,
@@ -127,17 +127,17 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def isChild(q: QueryableExpressionNode):Boolean =
     views.find(n => n == q) != None
 
-  def selectDistinct = _query.selectDistinct
+  def selectDistinct: Boolean = _query.selectDistinct
 
-  def isForUpdate = _query.isForUpdate
+  def isForUpdate: Boolean = _query.isForUpdate
 
-  def page = _query.page
+  def page: Option[(Int, Int)] = _query.page
 
-  def unionIsForUpdate = _query.unionIsForUpdate
+  def unionIsForUpdate: Boolean = _query.unionIsForUpdate
 
-  def unionPage = _query.unionPage
+  def unionPage: Option[(Int, Int)] = _query.unionPage
 
-  def alias = "q" + uniqueId.get
+  def alias: String = "q" + uniqueId.get
 
   def getOrCreateAllSelectElements(forScope: QueryExpressionElements): Iterable[SelectElement] = {
     _selectList.map(se => new ExportedSelectElement(se))
@@ -145,7 +145,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   private def hasUnionQueryOptions = unionIsForUpdate || unionPage.isDefined
 
-  def setOutExpressionNodesAndSample(sl: Iterable[SelectElement], s: AnyRef) = {
+  def setOutExpressionNodesAndSample(sl: Iterable[SelectElement], s: AnyRef): Unit = {
     _selectList = sl
     _sample = Some(s)
 
@@ -218,7 +218,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   def selectList: Iterable[SelectElement] = _selectList
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     def writeCompleteQuery = {
       val isNotRoot = parent != None
       val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)

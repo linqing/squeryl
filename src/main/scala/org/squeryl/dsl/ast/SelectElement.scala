@@ -55,7 +55,8 @@ trait SelectElement extends ExpressionNode {
    */  
   def origin: QueryableExpressionNode
 
-  def parentQueryable = parent.get.asInstanceOf[QueryableExpressionNode]  
+  def parentQueryable: QueryableExpressionNode =
+    parent.get.asInstanceOf[QueryableExpressionNode]
 
   def resultSetMapper: ResultSetMapper
 
@@ -98,10 +99,10 @@ trait SelectElement extends ExpressionNode {
 
   def prepareMapper(jdbcIndex: Int): Unit
 
-  override def inhibited =
+  override def inhibited: Boolean =
     origin.inhibited
 
-  def isActive = _isActive
+  def isActive: Boolean = _isActive
 
   protected [squeryl] var _isActive = false
   
@@ -114,7 +115,7 @@ trait SelectElement extends ExpressionNode {
 
   override def children = List(expression)
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     expression.write(sw)
     sw.write(" as ")
     sw.databaseAdapter.writeSelectElementAlias(this, sw)
@@ -128,7 +129,7 @@ class TupleSelectElement
   def resultSetMapper: ResultSetMapper = throw new UnsupportedOperationException("refactor me")
 
   //TODO: normalize ?
-  def alias =
+  def alias: String =
     if(isGroupTuple)
       "g" + indexInTuple
     else
@@ -137,7 +138,7 @@ class TupleSelectElement
 
   var columnToTupleMapper: Option[ColumnToTupleMapper] = None
 
-  def prepareColumnMapper(index: Int) = {}
+  def prepareColumnMapper(index: Int): Unit = {}
 
   def typeOfExpressionToString: String =
     if(columnToTupleMapper == None)
@@ -145,11 +146,11 @@ class TupleSelectElement
     else
       columnToTupleMapper.get.typeOfExpressionToString(indexInTuple)
 
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     if(columnToTupleMapper != None)
       columnToTupleMapper.get.activate(indexInTuple, jdbcIndex)
 
-  override def toString =
+  override def toString: String =
     'TupleSelectElement + ":" + indexInTuple + ":" + writeToString
 }
 
@@ -157,7 +158,7 @@ class FieldSelectElement
 (val origin: ViewExpressionNode[_], val fieldMetaData: FieldMetaData, val resultSetMapper: ResultSetMapper)
   extends SelectElement with UniqueIdInAliaseRequired {
 
-  def alias =
+  def alias: String =
     if(inhibitAliasOnSelectElementReference)
       if(realTableNamePrefix)
         origin.view.name + "." + fieldMetaData.columnName
@@ -172,26 +173,26 @@ class FieldSelectElement
   
   val expression = new ExpressionNode {
     
-    def doWrite(sw: StatementWriter) =
+    def doWrite(sw: StatementWriter): Unit =
       sw.write(sw.quoteName(alias))
   }
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     columnMapper = Some(new ColumnToFieldMapper(index, fieldMetaData, this))
 
   private var columnMapper: Option[ColumnToFieldMapper] = None
 
-  def prepareMapper(jdbcIndex: Int) =
+  def prepareMapper(jdbcIndex: Int): Unit =
     if(columnMapper != None) {
       resultSetMapper.addColumnMapper(columnMapper.get)
       resultSetMapper.isActive = true
       _isActive = true
     }
   
-  def typeOfExpressionToString =
+  def typeOfExpressionToString: String =
     fieldMetaData.displayType
   
-  override def toString =
+  override def toString: String =
     'FieldSelectElement + ":" +
        Utils.failSafeString(alias, fieldMetaData.nameOfProperty)
 }
@@ -200,27 +201,27 @@ class ValueSelectElement
   (val expression: ExpressionNode, val resultSetMapper: ResultSetMapper, mapper: OutMapper[_], val origin: QueryExpressionNode[_])
      extends SelectElement with UniqueIdInAliaseRequired {
 
-  def alias = "v" + uniqueId.get
+  def alias: String = "v" + uniqueId.get
 
   var yieldPusher: Option[YieldValuePusher] = None
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     yieldPusher = Some(new YieldValuePusher(index, this, mapper))  
 
-  def typeOfExpressionToString =
+  def typeOfExpressionToString: String =
     if(yieldPusher == None)
       "unknown"
     else
       yieldPusher.get.selectElement.typeOfExpressionToString
   
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     if(yieldPusher != None) {
       resultSetMapper.addYieldValuePusher(yieldPusher.get)
       resultSetMapper.isActive = true
       _isActive = true
     }
 
-  override def toString =
+  override def toString: String =
     'ValueSelectElement + ":" + expression.writeToString  
 }
 
@@ -233,10 +234,10 @@ class SelectElementReference[A,T]
   (val selectElement: SelectElement, val mapper: OutMapper[A])
     extends TypedExpression[A,T] {
     
-  override def toString =
+  override def toString: String =
     'SelectElementReference + ":" + Utils.failSafeString(delegateAtUseSite.alias) + ":" + selectElement.typeOfExpressionToString + inhibitedFlagForAstDump
 
-  override def inhibited =
+  override def inhibited: Boolean =
     selectElement.inhibited
 
   private def _useSite: QueryExpressionNode[_] = {
@@ -254,7 +255,7 @@ class SelectElementReference[A,T]
     findQueryExpressionNode(this)
   }
 
-  lazy val delegateAtUseSite =
+  lazy val delegateAtUseSite: SelectElement =
     if(selectElement.parent == None)
       selectElement
     else {
@@ -268,7 +269,7 @@ class SelectElementReference[A,T]
       }
     }
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     sw.write(sw.quoteName(delegateAtUseSite.alias))
 }
 
@@ -279,29 +280,29 @@ class ExportedSelectElement
   (val selectElement: SelectElement)
     extends SelectElement {
 
-  def resultSetMapper = selectElement.resultSetMapper
+  def resultSetMapper: ResultSetMapper = selectElement.resultSetMapper
 
-  override def inhibited =
+  override def inhibited: Boolean =
     selectElement.inhibited
 
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     selectElement.prepareMapper(jdbcIndex)
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     selectElement.prepareColumnMapper(index)
 
-  def typeOfExpressionToString =
+  def typeOfExpressionToString: String =
     selectElement.typeOfExpressionToString
 
-  def origin = selectElement.origin
+  def origin: QueryableExpressionNode = selectElement.origin
 
   val expression = new ExpressionNode {
 
-    def doWrite(sw: StatementWriter) =
+    def doWrite(sw: StatementWriter): Unit =
     sw.write(sw.quoteName(alias))
   }
 
-  override def toString =
+  override def toString: String =
     'ExportedSelectElement + ":" + alias + ",(selectElement=" + selectElement + ")"
 
   def alias:String =

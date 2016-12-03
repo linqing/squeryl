@@ -757,7 +757,7 @@ trait DatabaseAdapter {
   def writeDropTable(tableName: String) =
     "drop table " + quoteName(tableName)
 
-  def dropTable(t: Table[_]) =
+  def dropTable(t: Table[_]): Unit =
     execFailSafeExecute(writeDropTable(t.prefixedName), e=> isTableDoesNotExistException(e))
 
   def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = 

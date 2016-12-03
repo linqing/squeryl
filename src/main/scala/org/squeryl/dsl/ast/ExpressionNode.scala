@@ -454,11 +454,11 @@ class PrefixOperatorNode
 
   override def children = List(child)
 
-  override def inhibited = _inhibitedByWhen || child.inhibited
+  override def inhibited: Boolean = _inhibitedByWhen || child.inhibited
 
-  override def toString = 'PrefixOperatorNode + ":" + operatorToken + inhibitedFlagForAstDump
+  override def toString: String = 'PrefixOperatorNode + ":" + operatorToken + inhibitedFlagForAstDump
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(")
     sw.write(operatorToken)
     if(newLineAfterOperator)
