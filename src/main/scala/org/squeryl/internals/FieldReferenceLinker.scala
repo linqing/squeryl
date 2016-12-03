@@ -265,8 +265,8 @@ object FieldReferenceLinker {
 				  visited.put(o,o)
 				  _populateSelectCols(yi, q, o)
 				  for(f <- _declaredFieldCache(clazz)) {
-					  f.setAccessible(true);
-					  val ob = f.get(o)
+					  f.setAccessible(true)
+            val ob = f.get(o)
 					  if(!f.getName.startsWith("CGLIB$") && 
 					        !f.getType.getName.startsWith("scala.Function") && 
 					        !FieldMetaData.factory.hideFromYieldInspection(o, f)) {
@@ -334,7 +334,7 @@ object FieldReferenceLinker {
           if(m.getName.equals("toString") && m.getParameterTypes.length == 0)
             "sample:"+viewExpressionNode.view.name+"["+Integer.toHexString(System.identityHashCode(o)) + "]"
           else
-            proxy.invokeSuper(o, args);
+            proxy.invokeSuper(o, args)
 
         if(isComposite) {
           val ck = res.asInstanceOf[CompositeKey]
@@ -350,7 +350,7 @@ object FieldReferenceLinker {
 
           if(_compositeKeyMembers.get == null) {
             _compositeKeyMembers.remove()
-            _lastAccessedFieldReference = Some(viewExpressionNode.getOrCreateSelectElement(fmd.get));
+            _lastAccessedFieldReference = Some(viewExpressionNode.getOrCreateSelectElement(fmd.get))
           } else
             _compositeKeyMembers.get.get.append(viewExpressionNode.getOrCreateSelectElement(fmd.get))
         }

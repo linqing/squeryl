@@ -53,7 +53,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
 
     val sampleInstance4OptionTypeDeduction =
       try {
-        constructor._1.newInstance(constructor._2 :_*).asInstanceOf[AnyRef];
+        constructor._1.newInstance(constructor._2 :_*).asInstanceOf[AnyRef]
       }
       catch {
         case e:IllegalArgumentException =>
@@ -77,7 +77,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
           n
       })
 
-    val fmds = new ArrayBuffer[FieldMetaData];
+    val fmds = new ArrayBuffer[FieldMetaData]
 
     for(e <- name2MembersMap) {
       val name = e._1

@@ -314,7 +314,7 @@ trait DatabaseAdapter {
 
     sw.write("create table ")
     sw.write(quoteName(t.prefixedName))
-    sw.write(" (\n");
+    sw.write(" (\n")
     sw.writeIndented {
       sw.writeLinesWithSeparator(
         t.posoMetaData.fieldsMetaData.map(
@@ -327,7 +327,7 @@ trait DatabaseAdapter {
   }                     
      
   def fillParamsInto(params: Iterable[StatementParam], s: PreparedStatement) {    
-    var i = 1;
+    var i = 1
     for(p <- params) {
       setParamInto(s, p, i)
       i += 1
@@ -452,14 +452,14 @@ trait DatabaseAdapter {
     val o_ = o.asInstanceOf[AnyRef]    
     val f = getInsertableFields(t.posoMetaData.fieldsMetaData)
 
-    sw.write("insert into ");
-    sw.write(quoteName(t.prefixedName));
-    sw.write(" (");
-    sw.write(f.map(fmd => quoteName(fmd.columnName)).mkString(", "));
-    sw.write(") values ");
+    sw.write("insert into ")
+    sw.write(quoteName(t.prefixedName))
+    sw.write(" (")
+    sw.write(f.map(fmd => quoteName(fmd.columnName)).mkString(", "))
+    sw.write(") values ")
     sw.write(
       f.map(fmd => writeValue(o_, fmd, sw)
-    ).mkString("(",",",")"));
+    ).mkString("(",",",")"))
   }
 
   /**
@@ -760,7 +760,7 @@ trait DatabaseAdapter {
     execFailSafeExecute(writeDropTable(t.prefixedName), e=> isTableDoesNotExistException(e))
 
   def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = 
-      writeUniquenessConstraint(t, cols);
+      writeUniquenessConstraint(t, cols)
 
   def writeUniquenessConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = {
     //ALTER TABLE TEST ADD CONSTRAINT NAME_UNIQUE UNIQUE(NAME)

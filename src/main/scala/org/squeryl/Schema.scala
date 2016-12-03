@@ -474,8 +474,8 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   }
 
   private def _addColumnGroupAttributeAssignment(cga: ColumnGroupAttributeAssignment) =
-    _columnGroupAttributeAssignments.append(cga);
-  
+    _columnGroupAttributeAssignments.append(cga)
+
   def defaultColumnAttributesForKeyedEntityId(typeOfIdField: Class[_]): Set[_ >: PrimaryKey <: AttributeValidOnNumericalColumn with Product with Serializable] =
     if(typeOfIdField.isAssignableFrom(classOf[java.lang.Long]) || typeOfIdField.isAssignableFrom(classOf[java.lang.Integer]))
       Set(new PrimaryKey, new AutoIncremented(None))

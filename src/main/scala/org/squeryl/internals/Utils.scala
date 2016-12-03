@@ -62,7 +62,7 @@ object Utils {
   private class DummyQuery[A,B](q: Queryable[A],f: A=>B, g: B=>Unit) extends Query1[A,Int](
     q,
     a => {
-      val res = f(a);
+      val res = f(a)
       g(res)
       (new DummyQueryElements(None)).select(0)
     },

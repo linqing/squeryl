@@ -13,7 +13,7 @@ object LocalH2SinkStatisticsListener {
     initialize(schemaName, overwrite = false, workingDir)
 
   def initialize(schemaName: String, overwrite: Boolean, workingDir: String): LocalH2SinkStatisticsListener = {
-    Class.forName("org.h2.Driver");
+    Class.forName("org.h2.Driver")
 
     val file = new java.io.File(workingDir, schemaName + ".h2.db").getCanonicalFile
 

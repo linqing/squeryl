@@ -35,7 +35,7 @@ object UsageProfileConsolidator {
         org.squeryl.internals.Utils.throwError("Files don't exist : \n" + notExists.mkString(",\n"))
 
 
-      Class.forName("org.h2.Driver");
+      Class.forName("org.h2.Driver")
 
       val dstDb = new Session(
         java.sql.DriverManager.getConnection("jdbc:h2:" + dst.head.getAbsolutePath, "sa", ""),

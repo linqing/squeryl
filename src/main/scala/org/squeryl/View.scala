@@ -86,7 +86,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
     if(o == null)
       o = _createInstanceOfRowObject
     
-    resultSetMapper.map(o, resultSet);
+    resultSetMapper.map(o, resultSet)
     val t = o.asInstanceOf[T]
     _setPersisted(t)
     _callbacks.afterSelect(t.asInstanceOf[AnyRef]).asInstanceOf[T]

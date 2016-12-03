@@ -161,7 +161,7 @@ abstract class AbstractQuery[R](
       Utils.throwError("distinct is not supported on union queries")
     }
     val c = copy(asRoot = true, Nil)
-    c.selectDistinct = true;
+    c.selectDistinct = true
     c
   }
 
@@ -180,7 +180,7 @@ abstract class AbstractQuery[R](
     if (c.isUnionQuery)
       c.unionIsForUpdate = true
     else
-      c.isForUpdate = true;
+      c.isForUpdate = true
     c    
   }
 
@@ -202,8 +202,8 @@ abstract class AbstractQuery[R](
     s._addStatement(stmt) // if the iteration doesn't get completed, we must hang on to the statement to clean it up at session end.
     s._addResultSet(rs) // same for the result set
     
-    var _nextCalled = false;
-    var _hasNext = false;
+    var _nextCalled = false
+    var _hasNext = false
 
     var rowCount = 0
     

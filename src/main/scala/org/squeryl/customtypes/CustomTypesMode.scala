@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************** */
-package org.squeryl.customtypes;
+package org.squeryl.customtypes
 
 
 import java.sql.Timestamp
