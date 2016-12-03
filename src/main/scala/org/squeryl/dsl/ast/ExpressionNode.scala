@@ -169,7 +169,7 @@ class BinaryOperatorNodeLogicalBoolean(left: ExpressionNode, right: ExpressionNo
     if (nonInh.hasNext) {
       sw.write(operatorToken)
       if (newLineAfterOperator)
-        sw.nextLine
+        sw.nextLine()
       sw.write(" ")
 
       if (rightArgInParent)
@@ -261,7 +261,7 @@ class UpdateAssignment(val left: FieldMetaData, val right: ExpressionNode)
 
 trait BaseColumnAttributeAssignment {
 
-  def clearColumnAttributes: Unit
+  def clearColumnAttributes(): Unit
 
   def isIdFieldOfKeyedEntity: Boolean
 
@@ -289,7 +289,7 @@ class ColumnGroupAttributeAssignment(cols: Seq[FieldMetaData], columnAttributes_
   def addAttribute(a: ColumnAttribute): Unit =
     _columnAttributes.append(a)
 
-  def clearColumnAttributes: Unit = columns.foreach(_._clearColumnAttributes)
+  def clearColumnAttributes(): Unit = columns.foreach(_._clearColumnAttributes())
 
   def columns: Seq[FieldMetaData] = cols
 
@@ -314,7 +314,7 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
 class ColumnAttributeAssignment(val left: FieldMetaData, val columnAttributes: Seq[ColumnAttribute])
   extends BaseColumnAttributeAssignment {
 
-  def clearColumnAttributes: Unit = left._clearColumnAttributes
+  def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
   def isIdFieldOfKeyedEntity: Boolean = left.isIdFieldOfKeyedEntity
 }
@@ -324,7 +324,7 @@ class DefaultValueAssignment(val left: FieldMetaData, val value: TypedExpression
 
   def isIdFieldOfKeyedEntity: Boolean = left.isIdFieldOfKeyedEntity
 
-  def clearColumnAttributes: Unit = left._clearColumnAttributes
+  def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
   def columnAttributes = Nil
 }
@@ -441,7 +441,7 @@ class BinaryOperatorNode
     sw.write(" ")
     sw.write(operatorToken)
     if (newLineAfterOperator)
-      sw.nextLine
+      sw.nextLine()
     sw.write(" ")
     right.write(sw)
     sw.write(")")
@@ -462,7 +462,7 @@ class PrefixOperatorNode
     sw.write("(")
     sw.write(operatorToken)
     if (newLineAfterOperator)
-      sw.nextLine
+      sw.nextLine()
     child.write(sw)
     sw.write(")")
   }
@@ -629,14 +629,14 @@ class RightHandSideOfIn[A](val ast: ExpressionNode, val isIn: Option[Boolean] = 
 class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends ExpressionNode {
   def doWrite(sw: StatementWriter): Unit = {
     sw.write(kind)
-    sw.nextLine
+    sw.nextLine()
     sw.write("(")
-    sw.nextLine
+    sw.nextLine()
     sw.indent(1)
     ast.write(sw)
     sw.unindent(1)
     sw.write(")")
-    sw.nextLine
+    sw.nextLine()
   }
 
   override def toString: String = {
@@ -647,7 +647,7 @@ class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends Exp
     List(ast)
 }
 
-class QueryValueExpressionNode[A1, T1](val ast: ExpressionNode, override val mapper: OutMapper[A1]) extends TypedExpression[A1, T1] {
+case class QueryValueExpressionNode[A1, T1](val ast: ExpressionNode, override val mapper: OutMapper[A1]) extends TypedExpression[A1, T1] {
   def doWrite(sw: StatementWriter): Unit = {
     ast.write(sw)
   }

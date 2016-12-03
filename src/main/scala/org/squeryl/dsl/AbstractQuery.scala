@@ -207,18 +207,18 @@ abstract class AbstractQuery[R](
 
     var rowCount = 0
 
-    def close {
-      stmt.close
-      rs.close
+    def close() {
+      stmt.close()
+      rs.close()
     }
 
-    def _next: Unit = {
+    def _next(): Unit = {
       _hasNext = rs.next
 
       if (!_hasNext) {
         // close it since we've completed the iteration
         Utils.close(rs)
-        stmt.close
+        stmt.close()
 
         if (s.statisticsListener.isDefined) {
           s.statisticsListener.get.resultSetIterationEnded(statEx.uuid, System.currentTimeMillis, rowCount, iterationCompleted = true)
@@ -231,13 +231,13 @@ abstract class AbstractQuery[R](
 
     def hasNext: Boolean = {
       if (!_nextCalled)
-        _next
+        _next()
       _hasNext
     }
 
     def next: R = {
       if (!_nextCalled)
-        _next
+        _next()
       if (!_hasNext)
         throw new NoSuchElementException("next called with no rows available")
       _nextCalled = false

@@ -75,7 +75,7 @@ class FieldMetaData(
   private val _columnAttributes = new HashSet[ColumnAttribute]
 
 
-  private[squeryl] def _clearColumnAttributes = {
+  private[squeryl] def _clearColumnAttributes() = {
     _columnAttributes.clear
   }
 
@@ -556,7 +556,7 @@ object FieldMetaData {
   }
 
   def optionTypeFromScalaSig(member: Member): Option[Class[_]] = {
-    val scalaSigOption = ScalaSigParser.parse(member.getDeclaringClass())
+    val scalaSigOption = ScalaSigParser.parse(member.getDeclaringClass)
     scalaSigOption flatMap { scalaSig =>
       val result = scalaSig.symbols.filter { sym =>
         member.getName == sym.name

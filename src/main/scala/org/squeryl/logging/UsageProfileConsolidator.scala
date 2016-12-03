@@ -24,7 +24,7 @@ object UsageProfileConsolidator {
 
   def main(args: Array[String]): Unit =
     if (args.length < 2) {
-      printUsage
+      printUsage()
     }
     else {
 
@@ -63,7 +63,7 @@ object UsageProfileConsolidator {
     }
 
 
-  def printUsage: Unit = {
+  def printUsage(): Unit = {
     println("Usage : ")
     println("java org.squeryl.logging.UsageProfileConsolidator <h2FileForConsolidatedStatsProfile> <list of h2 files to consolidate>")
   }

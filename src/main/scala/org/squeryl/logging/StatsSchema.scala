@@ -82,7 +82,7 @@ object Measure extends Enumeration {
 
 object StatsSchema extends Schema {
 
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 
   val statements: Table[Statement] = table[Statement]("Statementz")
 

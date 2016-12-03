@@ -134,10 +134,10 @@ object FieldReferenceLinker {
 
     def reentranceDepth = _reentranceDepth
 
-    def incrementReentranceDepth =
+    def incrementReentranceDepth() =
       _reentranceDepth += 1
 
-    def decrementReentranceDepth =
+    def decrementReentranceDepth() =
       _reentranceDepth -= 1
 
     def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
@@ -246,7 +246,7 @@ object FieldReferenceLinker {
 
     def apply(cls: Class[_]) =
       _cache.get(cls) getOrElse {
-        val declaredFields = cls.getDeclaredFields()
+        val declaredFields = cls.getDeclaredFields
         _cache += ((cls, declaredFields))
         declaredFields
       }
@@ -315,13 +315,13 @@ object FieldReferenceLinker {
 
       try {
         if (fmd.isDefined && yi != null)
-          yi.incrementReentranceDepth
+          yi.incrementReentranceDepth()
 
         _intercept(o, m, args, proxy, fmd, yi, isComposite)
       }
       finally {
         if (fmd.isDefined && yi != null)
-          yi.decrementReentranceDepth
+          yi.decrementReentranceDepth()
       }
     }
 

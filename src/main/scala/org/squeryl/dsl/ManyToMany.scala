@@ -44,9 +44,9 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
 
   private val _buffer = new ArrayBuffer[M]
 
-  refresh
+  refresh()
 
-  def refresh: Unit = {
+  def refresh(): Unit = {
     _buffer.clear
     for (m <- relation.iterator.toSeq)
       _buffer.append(m)
@@ -60,7 +60,7 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
     m
   }
 
-  def deleteAll: Int = {
+  def deleteAll(): Int = {
     val r = relation.deleteAll
     _buffer.clear
     r
@@ -71,9 +71,9 @@ class StatefulManyToOne[O](val relation: ManyToOne[O]) {
 
   private var _one: Option[O] = None
 
-  refresh
+  refresh()
 
-  def refresh: Unit =
+  def refresh(): Unit =
     _one = relation.iterator.toSeq.headOption
 
   def one: Option[O] = _one
@@ -191,9 +191,9 @@ class StatefulManyToMany[O, A](val relation: ManyToMany[O, A]) extends Iterable[
 
   private val _map = new mutable.HashMap[O, A]
 
-  refresh
+  refresh()
 
-  def refresh: Unit = {
+  def refresh(): Unit = {
     _map.clear
     for (e <- relation.associationMap.iterator.toSeq)
       _map.put(e._1, e._2)
@@ -251,7 +251,7 @@ trait OneToMany[M] extends Query[M] {
     */
   def associate(m: M): M
 
-  def deleteAll: Int
+  def deleteAll(): Int
 }
 
 trait ManyToOne[O] extends Query[O] {

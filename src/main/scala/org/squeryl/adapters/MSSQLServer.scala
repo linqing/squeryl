@@ -75,7 +75,7 @@ class MSSQLServer extends DatabaseAdapter {
   override def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (qen.isForUpdate) {
       sw.write("with(updlock, rowlock)")
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =

@@ -44,7 +44,7 @@ object BarChartRenderer {
 
     val ps = new PrintStream(new FileOutputStream(staticHtmlFile))
     ps.print(page)
-    ps.close
+    ps.close()
   }
 
   val drawFunc =

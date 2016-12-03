@@ -88,33 +88,33 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
 
   def unindent(width: Int) = indentWidth -= width
 
-  def indent: Unit = indent(INDENT_INCREMENT)
+  def indent(): Unit = indent(INDENT_INCREMENT)
 
-  def unindent: Unit = unindent(INDENT_INCREMENT)
+  def unindent(): Unit = unindent(INDENT_INCREMENT)
 
   private def _append(s: String) = {
-    _flushPendingNextLine
+    _flushPendingNextLine()
     _stringBuilder.append(s)
   }
 
-  private def _writeIndentSpaces: Unit =
+  private def _writeIndentSpaces(): Unit =
     _writeIndentSpaces(indentWidth)
 
   private def _writeIndentSpaces(c: Int) =
     for (i <- 1 to c)
       _append(" ")
 
-  def nextLine = {
+  def nextLine() = {
     _append("\n")
-    _writeIndentSpaces
+    _writeIndentSpaces()
   }
 
   private var _lazyPendingLine: Option[() => Unit] = None
 
-  def pushPendingNextLine =
-    _lazyPendingLine = Some(() => nextLine)
+  def pushPendingNextLine() =
+    _lazyPendingLine = Some(() => nextLine())
 
-  private def _flushPendingNextLine =
+  private def _flushPendingNextLine() =
     if (_lazyPendingLine.isDefined) {
       val pl = _lazyPendingLine
       _lazyPendingLine = None
@@ -129,7 +129,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     for (l <- s) {
       _append(l)
       if (c < size)
-        nextLine
+        nextLine()
     }
   }
 
@@ -140,7 +140,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
       _append(l)
       if (c < size)
         _append(separator)
-      nextLine
+      nextLine()
       c += 1
     }
   }
@@ -153,7 +153,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
       if (c < size) {
         _append(separator)
         if (newLineAfterSeparator)
-          nextLine
+          nextLine()
       }
       c += 1
     }

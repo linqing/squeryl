@@ -220,7 +220,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def selectList: Iterable[SelectElement] = _selectList
 
   def doWrite(sw: StatementWriter): Unit = {
-    def writeCompleteQuery = {
+    def writeCompleteQuery() = {
       val isNotRoot = parent.isDefined
       val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
 
@@ -231,7 +231,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
       if (unionClauses.nonEmpty) {
         sw.write("(")
-        sw.nextLine
+        sw.nextLine()
         sw.indent(1)
       }
 
@@ -240,7 +240,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       if (unionClauses.nonEmpty) {
         sw.unindent(1)
         sw.write(")")
-        sw.nextLine
+        sw.nextLine()
       }
 
       unionClauses.foreach { u =>
@@ -260,9 +260,9 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     if (sw.databaseAdapter.supportsCommonTableExpressions) {
       cteRoot.map { r =>
         sw.databaseAdapter.writeCteReference(sw, r)
-      }.getOrElse(writeCompleteQuery)
+      }.getOrElse(writeCompleteQuery())
     } else {
-      writeCompleteQuery
+      writeCompleteQuery()
     }
   }
 }

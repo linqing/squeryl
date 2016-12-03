@@ -16,6 +16,7 @@
 package org.squeryl
 
 
+import java.sql
 import java.sql.Timestamp
 import java.util.{Date, UUID}
 
@@ -33,11 +34,11 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
 
 
   // =========================== Non Numerical =========================== 
-  implicit val stringTEF = PrimitiveTypeSupport.stringTEF
-  implicit val optionStringTEF = PrimitiveTypeSupport.optionStringTEF
-  implicit val dateTEF = PrimitiveTypeSupport.dateTEF
-  implicit val optionDateTEF = PrimitiveTypeSupport.optionDateTEF
-  implicit val sqlDateTEF = PrimitiveTypeSupport.sqlDateTEF
+  implicit val stringTEF: TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] = PrimitiveTypeSupport.stringTEF
+  implicit val optionStringTEF: TypedExpressionFactory[Option[String], TOptionString] with DeOptionizer[String, String, TString, Option[String], TOptionString] = PrimitiveTypeSupport.optionStringTEF
+  implicit val dateTEF: TypedExpressionFactory[Date, TDate] with PrimitiveJdbcMapper[Date] = PrimitiveTypeSupport.dateTEF
+  implicit val optionDateTEF: TypedExpressionFactory[Option[Date], TOptionDate] with DeOptionizer[Date, Date, TDate, Option[Date], TOptionDate] = PrimitiveTypeSupport.optionDateTEF
+  implicit val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = PrimitiveTypeSupport.sqlDateTEF
   implicit val optionSqlDateTEF = PrimitiveTypeSupport.optionSqlDateTEF
   implicit val timestampTEF = PrimitiveTypeSupport.timestampTEF
   implicit val optionTimestampTEF = PrimitiveTypeSupport.optionTimestampTEF
@@ -62,251 +63,253 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
   implicit val bigDecimalTEF = PrimitiveTypeSupport.bigDecimalTEF
   implicit val optionBigDecimalTEF = PrimitiveTypeSupport.optionBigDecimalTEF
 
+  type TE[A, B] = TypedExpression[A, B]
 
-  implicit def stringToTE(s: String) = stringTEF.create(s)
+  implicit def stringToTE(s: String): TE[String, TString] = stringTEF.create(s)
 
-  implicit def optionStringToTE(s: Option[String]) = optionStringTEF.create(s)
+  implicit def optionStringToTE(s: Option[String]): TE[Option[String], TOptionString] = optionStringTEF.create(s)
 
-  implicit def dateToTE(s: Date) = dateTEF.create(s)
+  implicit def dateToTE(s: Date): TE[Date, TDate] = dateTEF.create(s)
 
-  implicit def optionDateToTE(s: Option[Date]) = optionDateTEF.create(s)
+  implicit def optionDateToTE(s: Option[Date]): TE[Option[Date], TOptionDate] = optionDateTEF.create(s)
 
-  implicit def timestampToTE(s: Timestamp) = timestampTEF.create(s)
+  implicit def timestampToTE(s: Timestamp): TE[Timestamp, TTimestamp] = timestampTEF.create(s)
 
-  implicit def optionTimestampToTE(s: Option[Timestamp]) = optionTimestampTEF.create(s)
+  implicit def optionTimestampToTE(s: Option[Timestamp]): TE[Option[Timestamp], TOptionTimestamp] = optionTimestampTEF.create(s)
 
-  implicit def booleanToTE(s: Boolean) = PrimitiveTypeSupport.booleanTEF.create(s)
+  implicit def booleanToTE(s: Boolean): TE[Boolean, TBoolean] = PrimitiveTypeSupport.booleanTEF.create(s)
 
-  implicit def optionBooleanToTE(s: Option[Boolean]) = PrimitiveTypeSupport.optionBooleanTEF.create(s)
+  implicit def optionBooleanToTE(s: Option[Boolean]): TE[Option[Boolean], TOptionBoolean] = PrimitiveTypeSupport.optionBooleanTEF.create(s)
 
-  implicit def uuidToTE(s: UUID) = PrimitiveTypeSupport.uuidTEF.create(s)
+  implicit def uuidToTE(s: UUID): TE[UUID, TUUID] = PrimitiveTypeSupport.uuidTEF.create(s)
 
-  implicit def optionUUIDToTE(s: Option[UUID]) = PrimitiveTypeSupport.optionUUIDTEF.create(s)
+  implicit def optionUUIDToTE(s: Option[UUID]): TE[Option[UUID], TOptionUUID] = PrimitiveTypeSupport.optionUUIDTEF.create(s)
 
-  implicit def binaryToTE(s: Array[Byte]) = PrimitiveTypeSupport.binaryTEF.create(s)
+  implicit def binaryToTE(s: Array[Byte]): TE[Array[Byte], TByteArray] = PrimitiveTypeSupport.binaryTEF.create(s)
 
-  implicit def optionByteArrayToTE(s: Option[Array[Byte]]) = PrimitiveTypeSupport.optionByteArrayTEF.create(s)
+  implicit def optionByteArrayToTE(s: Option[Array[Byte]]): TE[Option[Array[Byte]], TOptionByteArray] = PrimitiveTypeSupport.optionByteArrayTEF.create(s)
 
-  implicit def enumValueToTE[A >: Enumeration#Value <: Enumeration#Value](e: A): TypedExpression[A, TEnumValue[A]] =
+  implicit def enumValueToTE[A >: Enumeration#Value <: Enumeration#Value](e: A): TE[A, TEnumValue[A]] =
     PrimitiveTypeSupport.enumValueTEF[A](e).create(e)
 
-  implicit def optionEnumcValueToTE[A >: Enumeration#Value <: Enumeration#Value](e: Option[A]): TypedExpression[Option[A], TOptionEnumValue[A]] =
+  implicit def optionEnumcValueToTE[A >: Enumeration#Value <: Enumeration#Value](e: Option[A]): TE[Option[A], TOptionEnumValue[A]] =
     PrimitiveTypeSupport.optionEnumValueTEF[A](e).create(e)
 
-  implicit def byteToTE(f: Byte) = byteTEF.create(f)
+  implicit def byteToTE(f: Byte): TE[Byte, TByte] = byteTEF.create(f)
 
-  implicit def optionByteToTE(f: Option[Byte]) = optionByteTEF.create(f)
+  implicit def optionByteToTE(f: Option[Byte]): TE[Option[Byte], TOptionByte] = optionByteTEF.create(f)
 
-  implicit def intToTE(f: Int) = intTEF.create(f)
+  implicit def intToTE(f: Int): TE[Int, TInt] = intTEF.create(f)
 
-  implicit def optionIntToTE(f: Option[Int]) = optionIntTEF.create(f)
+  implicit def optionIntToTE(f: Option[Int]): TE[Option[Int], TOptionInt] = optionIntTEF.create(f)
 
-  implicit def longToTE(f: Long) = longTEF.create(f)
+  implicit def longToTE(f: Long): TE[Long, TLong] = longTEF.create(f)
 
-  implicit def optionLongToTE(f: Option[Long]) = optionLongTEF.create(f)
+  implicit def optionLongToTE(f: Option[Long]): TE[Option[Long], TOptionLong] = optionLongTEF.create(f)
 
-  implicit def floatToTE(f: Float) = floatTEF.create(f)
+  implicit def floatToTE(f: Float): TE[Float, TFloat] = floatTEF.create(f)
 
-  implicit def optionFloatToTE(f: Option[Float]) = optionFloatTEF.create(f)
+  implicit def optionFloatToTE(f: Option[Float]): TE[Option[Float], TOptionFloat] = optionFloatTEF.create(f)
 
-  implicit def doubleToTE(f: Double) = doubleTEF.create(f)
+  implicit def doubleToTE(f: Double): TE[Double, TDouble] = doubleTEF.create(f)
 
-  implicit def optionDoubleToTE(f: Option[Double]) = optionDoubleTEF.create(f)
+  implicit def optionDoubleToTE(f: Option[Double]): TE[Option[Double], TOptionDouble] = optionDoubleTEF.create(f)
 
-  implicit def bigDecimalToTE(f: BigDecimal) = bigDecimalTEF.create(f)
+  implicit def bigDecimalToTE(f: BigDecimal): TE[BigDecimal, TBigDecimal] = bigDecimalTEF.create(f)
 
-  implicit def optionBigDecimalToTE(f: Option[BigDecimal]) = optionBigDecimalTEF.create(f)
+  implicit def optionBigDecimalToTE(f: Option[BigDecimal]): TE[Option[BigDecimal], TOptionBigDecimal] = optionBigDecimalTEF.create(f)
 
-  implicit def doubleArrayToTE(f: Array[Double]) = doubleArrayTEF.create(f)
+  implicit def doubleArrayToTE(f: Array[Double]): TE[Array[Double], TDoubleArray] = doubleArrayTEF.create(f)
 
-  implicit def intArrayToTE(f: Array[Int]) = intArrayTEF.create(f)
+  implicit def intArrayToTE(f: Array[Int]): TE[Array[Int], TIntArray] = intArrayTEF.create(f)
 
-  implicit def longArrayToTE(f: Array[Long]) = longArrayTEF.create(f)
+  implicit def longArrayToTE(f: Array[Long]): TE[Array[Long], TLongArray] = longArrayTEF.create(f)
 
-  implicit def stringArrayToTE(f: Array[String]) = stringArrayTEF.create(f)
+  implicit def stringArrayToTE(f: Array[String]): TE[Array[String], TStringArray] = stringArrayTEF.create(f)
 
 
-  implicit def logicalBooleanToTE(l: LogicalBoolean) =
+  implicit def logicalBooleanToTE(l: LogicalBoolean): TypedExpressionConversion[Boolean, TBoolean] =
     PrimitiveTypeSupport.booleanTEF.convert(l)
 
-  implicit def queryStringToTE(q: Query[String]) =
-    new QueryValueExpressionNode[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
+  type QVEN[A, B] = QueryValueExpressionNode[A, B]
+  implicit def queryStringToTE(q: Query[String]): QVEN[String, TString] =
+    new QVEN[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
 
-  implicit def queryOptionStringToTE(q: Query[Option[String]]) =
-    new QueryValueExpressionNode[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
+  implicit def queryOptionStringToTE(q: Query[Option[String]]): QVEN[Option[String], TOptionString] =
+    new QVEN[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
 
-  implicit def queryStringGroupedToTE(q: Query[Group[String]]) =
-    new QueryValueExpressionNode[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
+  implicit def queryStringGroupedToTE(q: Query[Group[String]]): QVEN[String, TString] =
+    new QVEN[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
 
-  implicit def queryOptionStringGroupedToTE(q: Query[Group[Option[String]]]) =
-    new QueryValueExpressionNode[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
+  implicit def queryOptionStringGroupedToTE(q: Query[Group[Option[String]]]): QVEN[Option[String], TOptionString] =
+    new QVEN[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
 
-  implicit def queryStringMeasuredToTE(q: Query[Measures[String]]) =
-    new QueryValueExpressionNode[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
+  implicit def queryStringMeasuredToTE(q: Query[Measures[String]]): QVEN[String, TString] =
+    new QVEN[String, TString](q.copy(asRoot = false, Nil).ast, stringTEF.createOutMapper)
 
-  implicit def queryOptionStringMeasuredToTE(q: Query[Measures[Option[String]]]) =
-    new QueryValueExpressionNode[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
+  implicit def queryOptionStringMeasuredToTE(q: Query[Measures[Option[String]]]): QVEN[Option[String], TOptionString] =
+    new QVEN[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
 
-  implicit def queryDateToTE(q: Query[Date]) =
-    new QueryValueExpressionNode[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateToTE(q: Query[Date]): QVEN[Date, TDate] =
+    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateToTE(q: Query[Option[Date]]) =
-    new QueryValueExpressionNode[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateToTE(q: Query[Option[Date]]): QVEN[Option[Date], TOptionDate] =
+    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
-  implicit def queryDateGroupedToTE(q: Query[Group[Date]]) =
-    new QueryValueExpressionNode[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateGroupedToTE(q: Query[Group[Date]]): QVEN[Date, TDate] =
+    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateGroupedToTE(q: Query[Group[Option[Date]]]) =
-    new QueryValueExpressionNode[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateGroupedToTE(q: Query[Group[Option[Date]]]): QVEN[Option[Date], TOptionDate] =
+    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
-  implicit def queryDateMeasuredToTE(q: Query[Measures[Date]]) =
-    new QueryValueExpressionNode[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateMeasuredToTE(q: Query[Measures[Date]]): QVEN[Date, TDate] =
+    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateMeasuredToTE(q: Query[Measures[Option[Date]]]) =
-    new QueryValueExpressionNode[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateMeasuredToTE(q: Query[Measures[Option[Date]]]): QVEN[Option[Date], TOptionDate] =
+    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
-  implicit def queryTimestampToTE(q: Query[Timestamp]) =
-    new QueryValueExpressionNode[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
+  implicit def queryTimestampToTE(q: Query[Timestamp]): QVEN[Timestamp, TTimestamp] =
+    new QVEN[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
 
-  implicit def queryOptionTimestampToTE(q: Query[Option[Timestamp]]) =
-    new QueryValueExpressionNode[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
+  implicit def queryOptionTimestampToTE(q: Query[Option[Timestamp]]): QVEN[Option[Timestamp], TOptionTimestamp] =
+    new QVEN[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
 
-  implicit def queryTimestampGroupedToTE(q: Query[Group[Timestamp]]) =
-    new QueryValueExpressionNode[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
+  implicit def queryTimestampGroupedToTE(q: Query[Group[Timestamp]]): QVEN[Timestamp, TTimestamp] =
+    new QVEN[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
 
-  implicit def queryOptionTimestampGroupedToTE(q: Query[Group[Option[Timestamp]]]) =
-    new QueryValueExpressionNode[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
+  implicit def queryOptionTimestampGroupedToTE(q: Query[Group[Option[Timestamp]]]): QVEN[Option[Timestamp], TOptionTimestamp] =
+    new QVEN[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
 
-  implicit def queryTimestampMeasuredToTE(q: Query[Measures[Timestamp]]) =
-    new QueryValueExpressionNode[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
+  implicit def queryTimestampMeasuredToTE(q: Query[Measures[Timestamp]]): QVEN[Timestamp, TTimestamp] =
+    new QVEN[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
 
-  implicit def queryOptionTimestampMeasuredToTE(q: Query[Measures[Option[Timestamp]]]) =
-    new QueryValueExpressionNode[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
+  implicit def queryOptionTimestampMeasuredToTE(q: Query[Measures[Option[Timestamp]]]): QVEN[Option[Timestamp], TOptionTimestamp] =
+    new QVEN[Option[Timestamp], TOptionTimestamp](q.copy(asRoot = false, Nil).ast, optionTimestampTEF.createOutMapper)
 
-  implicit def queryBooleanToTE(q: Query[Boolean]) =
-    new QueryValueExpressionNode[Boolean, TBoolean](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.booleanTEF.createOutMapper)
+  implicit def queryBooleanToTE(q: Query[Boolean]): QVEN[Boolean, TBoolean] =
+    new QVEN[Boolean, TBoolean](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.booleanTEF.createOutMapper)
 
-  implicit def queryOptionBooleanToTE(q: Query[Option[Boolean]]) =
-    new QueryValueExpressionNode[Option[Boolean], TOptionBoolean](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionBooleanTEF.createOutMapper)
+  implicit def queryOptionBooleanToTE(q: Query[Option[Boolean]]): QVEN[Option[Boolean], TOptionBoolean] =
+    new QVEN[Option[Boolean], TOptionBoolean](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionBooleanTEF.createOutMapper)
 
-  implicit def queryUUIDToTE(q: Query[UUID]) =
-    new QueryValueExpressionNode[UUID, TUUID](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.uuidTEF.createOutMapper)
+  implicit def queryUUIDToTE(q: Query[UUID]): QVEN[UUID, TUUID] =
+    new QVEN[UUID, TUUID](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.uuidTEF.createOutMapper)
 
-  implicit def queryOptionUUIDToTE(q: Query[Option[UUID]]) =
-    new QueryValueExpressionNode[Option[UUID], TOptionUUID](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionUUIDTEF.createOutMapper)
+  implicit def queryOptionUUIDToTE(q: Query[Option[UUID]]): QVEN[Option[UUID], TOptionUUID] =
+    new QVEN[Option[UUID], TOptionUUID](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionUUIDTEF.createOutMapper)
 
-  implicit def queryByteArrayToTE(q: Query[Array[Byte]]) =
-    new QueryValueExpressionNode[Array[Byte], TByteArray](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.binaryTEF.createOutMapper)
+  implicit def queryByteArrayToTE(q: Query[Array[Byte]]): QVEN[Array[Byte], TByteArray] =
+    new QVEN[Array[Byte], TByteArray](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.binaryTEF.createOutMapper)
 
-  implicit def queryOptionByteArrayToTE(q: Query[Option[Array[Byte]]]) =
-    new QueryValueExpressionNode[Option[Array[Byte]], TOptionByteArray](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionByteArrayTEF.createOutMapper)
+  implicit def queryOptionByteArrayToTE(q: Query[Option[Array[Byte]]]): QVEN[Option[Array[Byte]], TOptionByteArray] =
+    new QVEN[Option[Array[Byte]], TOptionByteArray](q.copy(asRoot = false, Nil).ast, PrimitiveTypeSupport.optionByteArrayTEF.createOutMapper)
 
-  implicit def queryByteToTE(q: Query[Byte]) =
-    new QueryValueExpressionNode[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
+  implicit def queryByteToTE(q: Query[Byte]): QVEN[Byte, TByte] =
+    new QVEN[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
 
-  implicit def queryOptionByteToTE(q: Query[Option[Byte]]) =
-    new QueryValueExpressionNode[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
+  implicit def queryOptionByteToTE(q: Query[Option[Byte]]): QVEN[Option[Byte], TOptionByte] =
+    new QVEN[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
 
-  implicit def queryByteGroupedToTE(q: Query[Group[Byte]]) =
-    new QueryValueExpressionNode[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
+  implicit def queryByteGroupedToTE(q: Query[Group[Byte]]): QVEN[Byte, TByte] =
+    new QVEN[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
 
-  implicit def queryOptionByteGroupedToTE(q: Query[Group[Option[Byte]]]) =
-    new QueryValueExpressionNode[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
+  implicit def queryOptionByteGroupedToTE(q: Query[Group[Option[Byte]]]): QVEN[Option[Byte], TOptionByte] =
+    new QVEN[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
 
-  implicit def queryByteMeasuredToTE(q: Query[Measures[Byte]]) =
-    new QueryValueExpressionNode[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
+  implicit def queryByteMeasuredToTE(q: Query[Measures[Byte]]): QVEN[Byte, TByte] =
+    new QVEN[Byte, TByte](q.copy(asRoot = false, Nil).ast, byteTEF.createOutMapper)
 
-  implicit def queryOptionByteMeasuredToTE(q: Query[Measures[Option[Byte]]]) =
-    new QueryValueExpressionNode[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
+  implicit def queryOptionByteMeasuredToTE(q: Query[Measures[Option[Byte]]]): QVEN[Option[Byte], TOptionByte] =
+    new QVEN[Option[Byte], TOptionByte](q.copy(asRoot = false, Nil).ast, optionByteTEF.createOutMapper)
 
-  implicit def queryIntToTE(q: Query[Int]) =
-    new QueryValueExpressionNode[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
+  implicit def queryIntToTE(q: Query[Int]): QVEN[Int, TInt] =
+    new QVEN[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
 
-  implicit def queryOptionIntToTE(q: Query[Option[Int]]) =
-    new QueryValueExpressionNode[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
+  implicit def queryOptionIntToTE(q: Query[Option[Int]]): QVEN[Option[Int], TOptionInt] =
+    new QVEN[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
 
-  implicit def queryIntGroupedToTE(q: Query[Group[Int]]) =
-    new QueryValueExpressionNode[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
+  implicit def queryIntGroupedToTE(q: Query[Group[Int]]): QVEN[Int, TInt] =
+    new QVEN[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
 
-  implicit def queryOptionIntGroupedToTE(q: Query[Group[Option[Int]]]) =
-    new QueryValueExpressionNode[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
+  implicit def queryOptionIntGroupedToTE(q: Query[Group[Option[Int]]]): QVEN[Option[Int], TOptionInt] =
+    new QVEN[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
 
-  implicit def queryIntMeasuredToTE(q: Query[Measures[Int]]) =
-    new QueryValueExpressionNode[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
+  implicit def queryIntMeasuredToTE(q: Query[Measures[Int]]): QVEN[Int, TInt] =
+    new QVEN[Int, TInt](q.copy(asRoot = false, Nil).ast, intTEF.createOutMapper)
 
-  implicit def queryOptionIntMeasuredToTE(q: Query[Measures[Option[Int]]]) =
-    new QueryValueExpressionNode[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
+  implicit def queryOptionIntMeasuredToTE(q: Query[Measures[Option[Int]]]): QVEN[Option[Int], TOptionInt] =
+    new QVEN[Option[Int], TOptionInt](q.copy(asRoot = false, Nil).ast, optionIntTEF.createOutMapper)
 
-  implicit def queryLongToTE(q: Query[Long]) =
-    new QueryValueExpressionNode[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
+  implicit def queryLongToTE(q: Query[Long]): QVEN[Long, TLong] =
+    new QVEN[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
 
-  implicit def queryOptionLongToTE(q: Query[Option[Long]]) =
-    new QueryValueExpressionNode[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
+  implicit def queryOptionLongToTE(q: Query[Option[Long]]): QVEN[Option[Long], TOptionLong] =
+    new QVEN[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
 
-  implicit def queryLongGroupedToTE(q: Query[Group[Long]]) =
-    new QueryValueExpressionNode[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
+  implicit def queryLongGroupedToTE(q: Query[Group[Long]]): QVEN[Long, TLong] =
+    new QVEN[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
 
-  implicit def queryOptionLongGroupedToTE(q: Query[Group[Option[Long]]]) =
-    new QueryValueExpressionNode[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
+  implicit def queryOptionLongGroupedToTE(q: Query[Group[Option[Long]]]): QVEN[Option[Long], TOptionLong] =
+    new QVEN[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
 
-  implicit def queryLongMeasuredToTE(q: Query[Measures[Long]]) =
-    new QueryValueExpressionNode[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
+  implicit def queryLongMeasuredToTE(q: Query[Measures[Long]]): QVEN[Long, TLong] =
+    new QVEN[Long, TLong](q.copy(asRoot = false, Nil).ast, longTEF.createOutMapper)
 
-  implicit def queryOptionLongMeasuredToTE(q: Query[Measures[Option[Long]]]) =
-    new QueryValueExpressionNode[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
+  implicit def queryOptionLongMeasuredToTE(q: Query[Measures[Option[Long]]]): QVEN[Option[Long], TOptionLong] =
+    new QVEN[Option[Long], TOptionLong](q.copy(asRoot = false, Nil).ast, optionLongTEF.createOutMapper)
 
-  implicit def queryFloatToTE(q: Query[Float]) =
-    new QueryValueExpressionNode[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
+  implicit def queryFloatToTE(q: Query[Float]): QVEN[Float, TFloat] =
+    new QVEN[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
 
-  implicit def queryOptionFloatToTE(q: Query[Option[Float]]) =
-    new QueryValueExpressionNode[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
+  implicit def queryOptionFloatToTE(q: Query[Option[Float]]): QVEN[Option[Float], TOptionFloat] =
+    new QVEN[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
 
-  implicit def queryFloatGroupedToTE(q: Query[Group[Float]]) =
-    new QueryValueExpressionNode[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
+  implicit def queryFloatGroupedToTE(q: Query[Group[Float]]): QVEN[Float, TFloat] =
+    new QVEN[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
 
-  implicit def queryOptionFloatGroupedToTE(q: Query[Group[Option[Float]]]) =
-    new QueryValueExpressionNode[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
+  implicit def queryOptionFloatGroupedToTE(q: Query[Group[Option[Float]]]): QVEN[Option[Float], TOptionFloat] =
+    new QVEN[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
 
-  implicit def queryFloatMeasuredToTE(q: Query[Measures[Float]]) =
-    new QueryValueExpressionNode[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
+  implicit def queryFloatMeasuredToTE(q: Query[Measures[Float]]): QVEN[Float, TFloat] =
+    new QVEN[Float, TFloat](q.copy(asRoot = false, Nil).ast, floatTEF.createOutMapper)
 
-  implicit def queryOptionFloatMeasuredToTE(q: Query[Measures[Option[Float]]]) =
-    new QueryValueExpressionNode[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
+  implicit def queryOptionFloatMeasuredToTE(q: Query[Measures[Option[Float]]]): QVEN[Option[Float], TOptionFloat] =
+    new QVEN[Option[Float], TOptionFloat](q.copy(asRoot = false, Nil).ast, optionFloatTEF.createOutMapper)
 
-  implicit def queryDoubleToTE(q: Query[Double]) =
-    new QueryValueExpressionNode[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
+  implicit def queryDoubleToTE(q: Query[Double]): QVEN[Double, TDouble] =
+    new QVEN[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
 
-  implicit def queryOptionDoubleToTE(q: Query[Option[Double]]) =
-    new QueryValueExpressionNode[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
+  implicit def queryOptionDoubleToTE(q: Query[Option[Double]]): QVEN[Option[Double], TOptionDouble] =
+    new QVEN[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
 
-  implicit def queryDoubleGroupedToTE(q: Query[Group[Double]]) =
-    new QueryValueExpressionNode[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
+  implicit def queryDoubleGroupedToTE(q: Query[Group[Double]]): QVEN[Double, TDouble] =
+    new QVEN[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
 
-  implicit def queryOptionDoubleGroupedToTE(q: Query[Group[Option[Double]]]) =
-    new QueryValueExpressionNode[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
+  implicit def queryOptionDoubleGroupedToTE(q: Query[Group[Option[Double]]]): QVEN[Option[Double], TOptionDouble] =
+    new QVEN[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
 
-  implicit def queryDoubleMeasuredToTE(q: Query[Measures[Double]]) =
-    new QueryValueExpressionNode[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
+  implicit def queryDoubleMeasuredToTE(q: Query[Measures[Double]]): QVEN[Double, TDouble] =
+    new QVEN[Double, TDouble](q.copy(asRoot = false, Nil).ast, doubleTEF.createOutMapper)
 
-  implicit def queryOptionDoubleMeasuredToTE(q: Query[Measures[Option[Double]]]) =
-    new QueryValueExpressionNode[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
+  implicit def queryOptionDoubleMeasuredToTE(q: Query[Measures[Option[Double]]]): QVEN[Option[Double], TOptionDouble] =
+    new QVEN[Option[Double], TOptionDouble](q.copy(asRoot = false, Nil).ast, optionDoubleTEF.createOutMapper)
 
-  implicit def queryBigDecimalToTE(q: Query[BigDecimal]) =
-    new QueryValueExpressionNode[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
+  implicit def queryBigDecimalToTE(q: Query[BigDecimal]): QVEN[BigDecimal, TBigDecimal] =
+    new QVEN[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
 
-  implicit def queryOptionBigDecimalToTE(q: Query[Option[BigDecimal]]) =
-    new QueryValueExpressionNode[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
+  implicit def queryOptionBigDecimalToTE(q: Query[Option[BigDecimal]]): QVEN[Option[BigDecimal], TOptionBigDecimal] =
+    new QVEN[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
 
-  implicit def queryBigDecimalGroupedToTE(q: Query[Group[BigDecimal]]) =
-    new QueryValueExpressionNode[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
+  implicit def queryBigDecimalGroupedToTE(q: Query[Group[BigDecimal]]): QVEN[BigDecimal, TBigDecimal] =
+    new QVEN[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
 
-  implicit def queryOptionBigDecimalGroupedToTE(q: Query[Group[Option[BigDecimal]]]) =
-    new QueryValueExpressionNode[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
+  implicit def queryOptionBigDecimalGroupedToTE(q: Query[Group[Option[BigDecimal]]]): QVEN[Option[BigDecimal], TOptionBigDecimal] =
+    new QVEN[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
 
-  implicit def queryBigDecimalMeasuredToTE(q: Query[Measures[BigDecimal]]) =
-    new QueryValueExpressionNode[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
+  implicit def queryBigDecimalMeasuredToTE(q: Query[Measures[BigDecimal]]): QVEN[BigDecimal, TBigDecimal] =
+    new QVEN[BigDecimal, TBigDecimal](q.copy(asRoot = false, Nil).ast, bigDecimalTEF.createOutMapper)
 
-  implicit def queryOptionBigDecimalMeasuredToTE(q: Query[Measures[Option[BigDecimal]]]) =
-    new QueryValueExpressionNode[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
+  implicit def queryOptionBigDecimalMeasuredToTE(q: Query[Measures[Option[BigDecimal]]]): QVEN[Option[BigDecimal], TOptionBigDecimal] =
+    new QVEN[Option[BigDecimal], TOptionBigDecimal](q.copy(asRoot = false, Nil).ast, optionBigDecimalTEF.createOutMapper)
 
 }

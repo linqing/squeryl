@@ -91,23 +91,23 @@ class DB2Adapter extends DatabaseAdapter {
       super.writeQuery(qen, sw)
     else {
       sw.write("select sq____1.* from (")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.write("select sq____0.*, row_number() over() as rn____")
-        sw.nextLine
+        sw.nextLine()
         sw.write("from")
-        sw.nextLine
+        sw.nextLine()
         sw.writeIndented {
           sw.write("(")
           super.writeQuery(qen, sw)
           sw.write(") sq____0")
         }
       }
-      sw.nextLine
+      sw.nextLine()
       sw.write(") sq____1")
-      sw.nextLine
+      sw.nextLine()
       sw.write("where")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.write("rn____ between ")
         val page = qen.page.get

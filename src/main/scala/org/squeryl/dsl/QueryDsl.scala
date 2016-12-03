@@ -108,11 +108,11 @@ trait QueryDsl
       val s = Session.currentSession
       val res =
         try {
-          s.unbindFromCurrentThread
+          s.unbindFromCurrentThread()
           SessionFactory.newSession.withinTransaction(a _)
         }
         finally {
-          s.bindToCurrentThread
+          s.bindToCurrentThread()
         }
       res
     }

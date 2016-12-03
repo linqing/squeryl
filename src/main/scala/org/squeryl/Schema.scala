@@ -106,7 +106,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   /**
     * Prints the schema to standard output, it is simply : schema.printDdl(println(_))
     */
-  def printDdl: Unit = printDdl(println(_))
+  def printDdl(): Unit = printDdl(println(_))
 
   def printDdl(pw: PrintWriter): Unit = printDdl(pw.println(_))
 
@@ -165,10 +165,10 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     * database instances, the method is protected in order to make it a little
     * less 'accessible'
     */
-  def drop: Unit = {
+  def drop(): Unit = {
 
     if (_dbAdapter.supportsForeignKeyConstraints)
-      _dropForeignKeyConstraints
+      _dropForeignKeyConstraints()
 
     Session.currentSession.connection.createStatement
     Session.currentSession.connection
@@ -179,14 +179,14 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  def create: Unit = {
-    _createTables
+  def create(): Unit = {
+    _createTables()
     if (_dbAdapter.supportsForeignKeyConstraints)
-      _declareForeignKeyConstraints
+      _declareForeignKeyConstraints()
 
-    _createConstraintsOfCompositePKs
+    _createConstraintsOfCompositePKs()
 
-    createColumnGroupConstraintsAndIndexes
+    createColumnGroupConstraintsAndIndexes()
   }
 
   private def _indexDeclarationsFor(t: Table[_]) = {
@@ -216,11 +216,11 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  def createColumnGroupConstraintsAndIndexes: Unit =
+  def createColumnGroupConstraintsAndIndexes(): Unit =
     for (statement <- _writeColumnGroupAttributeAssignments)
       _executeDdl(statement)
 
-  private def _dropForeignKeyConstraints = {
+  private def _dropForeignKeyConstraints() = {
 
     val cs = Session.currentSession
     val dba = cs.databaseAdapter
@@ -231,7 +231,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  private def _declareForeignKeyConstraints =
+  private def _declareForeignKeyConstraints() =
     for (fk <- _foreignKeyConstraints)
       _executeDdl(fk)
 
@@ -248,7 +248,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       case e: SQLException => throw SquerylSQLException("error executing " + statement + "\n" + e, e)
     }
     finally {
-      s.close
+      s.close()
     }
   }
 
@@ -265,7 +265,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       )
     }
 
-  private def _createTables = {
+  private def _createTables() = {
     for (t <- _tables) {
       val sw = new StatementWriter(_dbAdapter)
       _dbAdapter.writeCreateTable(t, sw, this)
@@ -276,7 +276,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  private def _createConstraintsOfCompositePKs =
+  private def _createConstraintsOfCompositePKs() =
     for (cpk <- _allCompositePrimaryKeys) {
       val createConstraintStmt = _dbAdapter.writeCompositePrimaryKeyConstraint(cpk._1, cpk._2)
       _executeDdl(createConstraintStmt)
@@ -367,7 +367,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
 
     def noAction = new ReferentialActionImpl("no action", this)
 
-    def setNull = new ReferentialActionImpl("set null", this)
+    def setNull() = new ReferentialActionImpl("set null", this)
   }
 
   class ReferentialActionImpl(token: String, ev: ReferentialEvent) extends ReferentialAction {
@@ -427,7 +427,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
 
     // all fields that have a single 'is' declaration are first reset :
     for (ca <- colAss if ca.isInstanceOf[ColumnAttributeAssignment])
-      ca.clearColumnAttributes
+      ca.clearColumnAttributes()
 
     for (ca <- colAss) ca match {
       case dva: DefaultValueAssignment =>

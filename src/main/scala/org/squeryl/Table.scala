@@ -68,14 +68,14 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
             pk.setFromResultSet(o, rs, 1)
           }
           finally {
-            rs.close
+            rs.close()
           }
         }
         case a: Any =>
       }
     }
     finally {
-      st.close
+      st.close()
     }
 
     val r = _callbacks.afterInsert(o).asInstanceOf[T]
@@ -124,7 +124,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
 
       try {
         dba.fillParamsInto(sw.params, st)
-        st.addBatch
+        st.addBatch()
 
         var updateCount = 1
 
@@ -143,7 +143,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
             dba.setParamInto(st, FieldStatementParam(eN, fmd), idx)
             idx += 1
           })
-          st.addBatch
+          st.addBatch()
           updateCount += 1
         }
 
@@ -158,7 +158,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
             }
       }
       finally {
-        st.close
+        st.close()
       }
 
       for (a <- forAfterUpdateOrInsert)
