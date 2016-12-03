@@ -1,18 +1,18 @@
-/*******************************************************************************
- * Copyright 2010 Maxime Lévesque
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ***************************************************************************** */
+/** *****************************************************************************
+  * Copyright 2010 Maxime Lévesque
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  * **************************************************************************** */
 package org.squeryl.internals
 
 import org.squeryl.dsl.ast.{ConstantExpressionNodeList, ConstantTypedExpression, ExpressionNode}
@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
 
 trait StatementParam
 
-case class ConstantStatementParam(p: ConstantTypedExpression[_,_]) extends StatementParam
+case class ConstantStatementParam(p: ConstantTypedExpression[_, _]) extends StatementParam
 case class FieldStatementParam(v: AnyRef, fmd: FieldMetaData) extends StatementParam
 /*
  * ParamWithMapper is a workadound to accomodate the ConstantExpressionNodeList, ideally 'in' and 'notIn' would grab the TEF in scope :
@@ -37,11 +37,11 @@ case class FieldStatementParam(v: AnyRef, fmd: FieldMetaData) extends StatementP
 case class ConstantExpressionNodeListParam(v: AnyRef, l: ConstantExpressionNodeList[_]) extends StatementParam
 
 /**
- * @param isForDisplay: when true, users of StatementWriter should write
- *   jdbc params as strings in statement,
- *   otherwise a jdbc param declarations '?' should be written, and
- *   the param values should be accumulated with addParam(s)
- */
+  * @param isForDisplay : when true, users of StatementWriter should write
+  *                     jdbc params as strings in statement,
+  *                     otherwise a jdbc param declarations '?' should be written, and
+  *                     the param values should be accumulated with addParam(s)
+  */
 class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAdapter) {
   outer =>
 
@@ -52,15 +52,15 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   protected val _paramList = new ArrayBuffer[StatementParam]
 
   /**
-   * a surrogate writer will accumulate text within itself (not the parent)
-   * while param accumulation (addParam) will go to the root writer, this
-   * is useful when it is easier to first build a string and to write it
-   * afterwards
-   */
-  def surrogate:StatementWriter = new StatementWriter(isForDisplay, databaseAdapter) {
-    
+    * a surrogate writer will accumulate text within itself (not the parent)
+    * while param accumulation (addParam) will go to the root writer, this
+    * is useful when it is easier to first build a string and to write it
+    * afterwards
+    */
+  def surrogate: StatementWriter = new StatementWriter(isForDisplay, databaseAdapter) {
+
     indentWidth = outer.indentWidth
-    
+
     override def surrogate = outer.surrogate
 
     override def addParam(p: StatementParam) = outer.addParam(p)
@@ -75,19 +75,21 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   def addParam(p: StatementParam) = _paramList.append(p)
 
   override def toString =
-    if(_paramList.isEmpty)
+    if (_paramList.isEmpty)
       statement
     else
-      _paramList.mkString(statement+"\njdbcParams:[",",","]")
-  
+      _paramList.mkString(statement + "\njdbcParams:[", ",", "]")
+
   private val INDENT_INCREMENT = 2
-  
+
   private var indentWidth = 0
 
   def indent(width: Int) = indentWidth += width
+
   def unindent(width: Int) = indentWidth -= width
 
   def indent: Unit = indent(INDENT_INCREMENT)
+
   def unindent: Unit = unindent(INDENT_INCREMENT)
 
   private def _append(s: String) = {
@@ -95,11 +97,11 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     _stringBuilder.append(s)
   }
 
-  private def _writeIndentSpaces: Unit = 
+  private def _writeIndentSpaces: Unit =
     _writeIndentSpaces(indentWidth)
-  
+
   private def _writeIndentSpaces(c: Int) =
-    for( i <- 1 to c)
+    for (i <- 1 to c)
       _append(" ")
 
   def nextLine = {
@@ -110,23 +112,23 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   private var _lazyPendingLine: Option[() => Unit] = None
 
   def pushPendingNextLine =
-   _lazyPendingLine = Some(()=> nextLine)
+    _lazyPendingLine = Some(() => nextLine)
 
   private def _flushPendingNextLine =
-    if(_lazyPendingLine.isDefined)  {
+    if (_lazyPendingLine.isDefined) {
       val pl = _lazyPendingLine
       _lazyPendingLine = None
       val lpl = pl.get
       lpl()
-   }
-  
+    }
+
   def writeLines(s: String*) = {
     val size = s.size
     val c = 1
 
-    for(l <- s) {
+    for (l <- s) {
       _append(l)
-      if(c < size)
+      if (c < size)
         nextLine
     }
   }
@@ -134,9 +136,9 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   def writeLinesWithSeparator(s: Iterable[String], separator: String) = {
     val size = s.size
     var c = 1
-    for(l <- s) {
+    for (l <- s) {
       _append(l)
-      if(c < size)
+      if (c < size)
         _append(separator)
       nextLine
       c += 1
@@ -146,11 +148,11 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   def writeNodesWithSeparator(s: Iterable[ExpressionNode], separator: String, newLineAfterSeparator: Boolean) = {
     val size = s.size
     var c = 1
-    for(n <- s) {
+    for (n <- s) {
       n.write(this)
-      if(c < size) {
+      if (c < size) {
         _append(separator)
-        if(newLineAfterSeparator)
+        if (newLineAfterSeparator)
           nextLine
       }
       c += 1
@@ -158,13 +160,13 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
   }
 
   def write(s: String*) =
-    for(s0 <- s)
+    for (s0 <- s)
       _append(s0)
 
-  def writeIndented(u: =>Unit): Unit =
+  def writeIndented(u: => Unit): Unit =
     writeIndented(INDENT_INCREMENT, u)
 
-  def writeIndented(width: Int, u: =>Unit) = {
+  def writeIndented(width: Int, u: => Unit) = {
     indent(width)
     _writeIndentSpaces(width)
     u
