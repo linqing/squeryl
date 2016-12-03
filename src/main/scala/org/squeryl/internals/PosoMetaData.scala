@@ -34,7 +34,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
   def findFieldMetaDataForProperty(name: String) =
     _fieldsMetaData.find(fmd => fmd.nameOfProperty == name)
 
-  val isOptimistic = viewOrTable.ked.map(_.isOptimistic).getOrElse(false)
+  val isOptimistic = viewOrTable.ked.exists(_.isOptimistic)
 
   val constructor =
     _const.headOption.orElse(org.squeryl.internals.Utils.throwError(clasz.getName +

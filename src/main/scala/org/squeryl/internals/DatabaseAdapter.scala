@@ -40,7 +40,7 @@ trait DatabaseAdapter {
     def zipi = this
   }
 
-  implicit def zipIterable[T](i: Iterable[T]) = new ZipIterable(i)
+  implicit def zipIterable[T](i: Iterable[T]): ZipIterable[T] = new ZipIterable(i)
 
   def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     writeQuery(qen, sw, inverseOrderBy = false, None)
@@ -422,7 +422,7 @@ trait DatabaseAdapter {
     }
   }
 
-  implicit def string2StatementWriter(s: String) = {
+  implicit def string2StatementWriter(s: String): StatementWriter = {
     val sw = new StatementWriter(this)
     sw.write(s)
     sw
@@ -877,7 +877,7 @@ trait DatabaseAdapter {
   }
 
   def databaseTypeFor(fieldMapper: FieldMapper, c: Class[_]): String = {
-    val ar = fieldMapper.sampleValueFor(c)
+    val ar: AnyRef = fieldMapper.sampleValueFor(c)
     val decl =
       if (ar.isInstanceOf[Enumeration#Value])
         intTypeDeclaration

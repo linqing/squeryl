@@ -303,7 +303,7 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
 
   override def isIdFieldOfKeyedEntity: Boolean = {
     val fmdHead = group._fields.head
-    fmdHead.parentMetaData.viewOrTable.ked.map(_.idPropertyName == group._propertyName).getOrElse(false)
+    fmdHead.parentMetaData.viewOrTable.ked.exists(_.idPropertyName == group._propertyName)
   }
 
   assert(group._propertyName.isDefined)
@@ -647,7 +647,7 @@ class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends Exp
     List(ast)
 }
 
-case class QueryValueExpressionNode[A1, T1](val ast: ExpressionNode, override val mapper: OutMapper[A1]) extends TypedExpression[A1, T1] {
+case class QueryValueExpressionNode[A1, T1](ast: ExpressionNode, override val mapper: OutMapper[A1]) extends TypedExpression[A1, T1] {
   def doWrite(sw: StatementWriter): Unit = {
     ast.write(sw)
   }

@@ -114,7 +114,7 @@ class FieldMetaData(
   }
 
   def isIdFieldOfKeyedEntity =
-    parentMetaData.viewOrTable.ked.map(_.idPropertyName == nameOfProperty).getOrElse(false)
+    parentMetaData.viewOrTable.ked.exists(_.idPropertyName == nameOfProperty)
 
   if (isIdFieldOfKeyedEntity && !classOf[CompositeKey].isAssignableFrom(wrappedFieldType)) {
     schema.defaultColumnAttributesForKeyedEntityId(wrappedFieldType).foreach(ca => {
@@ -324,10 +324,7 @@ class FieldMetaData(
       val actualValue =
         if (!isOption)
           v0
-        else if (v0 == null)
-          None
-        else
-          Some(v0)
+        else Option(v0)
 
 
       if (setter.isDefined)
@@ -609,10 +606,7 @@ object FieldMetaData {
                     else Some(oType.asInstanceOf[Class[_]])
                   trueTypeOption flatMap { trueType =>
                     val deduced = createDefaultValue(fieldMapper, member, trueType, None, optionFieldsInfo)
-                    if (deduced != null)
-                      Some(deduced)
-                    else
-                      None //Couldn't create default for type param
+                    Option(deduced) //Couldn't create default for type param
                   }
                 } else {
                   None //Type parameter is not a Class

@@ -141,9 +141,9 @@ trait QueryDsl
   def &[A, T](i: => TypedExpression[A, T]): A =
     FieldReferenceLinker.pushExpressionOrCollectValue[A](i _)
 
-  implicit def typedExpression2OrderByArg[E <% TypedExpression[_, _]](e: E) = new OrderByArg(e)
+  implicit def typedExpression2OrderByArg[E <% TypedExpression[_, _]](e: E): OrderByArg = new OrderByArg(e)
 
-  implicit def orderByArg2OrderByExpression(a: OrderByArg) = new OrderByExpression(a)
+  implicit def orderByArg2OrderByExpression(a: OrderByArg): OrderByExpression = new OrderByExpression(a)
 
   def sDevPopulation[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
@@ -236,7 +236,7 @@ trait QueryDsl
 
   implicit def scalarQuery2Scalar[T](sq: ScalarQuery[T]): T = sq.head
 
-  implicit def countQueryableToIntTypeQuery[R](q: Queryable[R]) = new CountSubQueryableQuery(q)
+  implicit def countQueryableToIntTypeQuery[R](q: Queryable[R]): CountSubQueryableQuery = new CountSubQueryableQuery(q)
 
   def count: CountFunction = count()
 
@@ -364,7 +364,7 @@ trait QueryDsl
   /**
     * Used for supporting 'inhibitWhen' dynamic queries
     */
-  implicit def queryable2OptionalQueryable[A](q: Queryable[A]) = new OptionalQueryable[A](q)
+  implicit def queryable2OptionalQueryable[A](q: Queryable[A]): OptionalQueryable[A] = new OptionalQueryable[A](q)
 
   //implicit def view2QueryAll[A](v: View[A]) = from(v)(a=> select(a))
 
