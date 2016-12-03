@@ -28,7 +28,7 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
 
   private var _connection: Option[Connection] = None
 
-  def hasConnection: Boolean = _connection != None
+  def hasConnection: Boolean = _connection.isDefined
 
   var originalAutoCommit = true
 
@@ -171,7 +171,7 @@ trait AbstractSession {
   protected[squeryl] def using[A](a: ()=>A): A = {
     val s = Session.currentSessionOption
     try {
-      if(s != None) s.get.unbindFromCurrentThread
+      if(s.isDefined) s.get.unbindFromCurrentThread
       try {
         this.bindToCurrentThread
         val r = a()
@@ -183,7 +183,7 @@ trait AbstractSession {
       }
     }
     finally {
-      if(s != None) s.get.bindToCurrentThread
+      if(s.isDefined) s.get.bindToCurrentThread
     }
   }
 
@@ -292,20 +292,20 @@ object Session {
   }
 
   def currentSession: AbstractSession =
-    if(SessionFactory.externalTransactionManagementAdapter != None) {
+    if(SessionFactory.externalTransactionManagementAdapter.isDefined) {
       SessionFactory.externalTransactionManagementAdapter.get.apply getOrElse org.squeryl.internals.Utils.throwError("SessionFactory.externalTransactionManagementAdapter was unable to supply a Session for the current scope")
     }
     else currentSessionOption.getOrElse(
       throw new IllegalStateException("No session is bound to current thread, a session must be created via Session.create \nand bound to the thread via 'work' or 'bindToCurrentThread'\n Usually this error occurs when a statement is executed outside of a transaction/inTrasaction block"))
 
   def hasCurrentSession: Boolean =
-    currentSessionOption != None
+    currentSessionOption.isDefined
 
   def cleanupResources: Unit =
     currentSessionOption foreach (_.cleanup)
 
   private[squeryl] def currentSession_=(s: Option[AbstractSession]) =
-    if (s == None) {
+    if (s.isEmpty) {
       _currentSessionThreadLocal.remove()        
     } else {
       _currentSessionThreadLocal.set(s.get)

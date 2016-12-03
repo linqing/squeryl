@@ -43,7 +43,7 @@ object FieldReferenceLinker {
     }
     else {
       val r = _yieldValues.get.remove(0).asInstanceOf[T]
-      if (_yieldValues.get.size == 0) {
+      if (_yieldValues.get.isEmpty) {
         _yieldValues.remove()
       }
       r
@@ -81,7 +81,7 @@ object FieldReferenceLinker {
   }
 
   private [squeryl] def _lastAccessedFieldReference_=(se: Option[SelectElement]) =
-    if (se == None) {
+    if (se.isEmpty) {
       __lastAccessedFieldReference.remove()
     } else {
       __lastAccessedFieldReference.set(se)
@@ -314,13 +314,13 @@ object FieldReferenceLinker {
           classOf[CompositeKey].isAssignableFrom(m.getReturnType)
 
         try {
-          if(fmd != None && yi != null)
+          if(fmd.isDefined && yi != null)
             yi.incrementReentranceDepth
 
           _intercept(o, m, args, proxy, fmd, yi, isComposite)
         }
         finally {
-          if(fmd != None && yi != null)
+          if(fmd.isDefined && yi != null)
             yi.decrementReentranceDepth
         }
       }
@@ -343,7 +343,7 @@ object FieldReferenceLinker {
           _compositeKeyMembers.remove()
         }
 
-        if(fmd != None) {
+        if(fmd.isDefined) {
 
           if(yi != null &&  yi.reentranceDepth == 1)
             yi.addSelectElement(viewExpressionNode.getOrCreateSelectElement(fmd.get, yi.queryExpressionNode))

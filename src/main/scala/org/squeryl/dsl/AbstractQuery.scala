@@ -46,7 +46,7 @@ abstract class AbstractQuery[R](
 
   val name = "query"
 
-  private def isUnionQuery = ! unions.isEmpty
+  private def isUnionQuery = unions.nonEmpty
 
   override private [squeryl] def root = __root
 
@@ -196,7 +196,7 @@ abstract class AbstractQuery[R](
 
     lazy val statEx = new StatementInvocationEvent(definitionSite.get, beforeQueryExecute, System.currentTimeMillis, -1, sw.statement)
 
-    if(s.statisticsListener != None)
+    if(s.statisticsListener.isDefined)
       s.statisticsListener.get.queryExecuted(statEx)
 
     s._addStatement(stmt) // if the iteration doesn't get completed, we must hang on to the statement to clean it up at session end.
@@ -219,7 +219,7 @@ abstract class AbstractQuery[R](
         Utils.close(rs)
         stmt.close
 
-        if(s.statisticsListener != None) {
+        if(s.statisticsListener.isDefined) {
           s.statisticsListener.get.resultSetIterationEnded(statEx.uuid, System.currentTimeMillis, rowCount, iterationCompleted = true)
         }
       }
@@ -287,7 +287,7 @@ abstract class AbstractQuery[R](
      val node: QueryableExpressionNode) {
 
     def give(rs: ResultSet): U =
-      if(node.joinKind != None) {
+      if(node.joinKind.isDefined) {
         if(node.isOuterJoined) {
 
           val isNoneInOuterJoin =

@@ -257,7 +257,7 @@ class Table[T] private [squeryl] (n: String, c: Class[T], val schema: Schema, _p
     var idGen = 0
     us.visitDescendants((node,parent,i) => {
 
-      if(node.parent == None)
+      if(node.parent.isEmpty)
         node.parent = parent
 
       node match {

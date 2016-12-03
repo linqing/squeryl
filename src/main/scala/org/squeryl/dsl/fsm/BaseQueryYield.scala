@@ -186,7 +186,7 @@ extends BaseQueryYield[GroupWithMeasures[K,M]](_qe, null)
   }
 
   override def havingClause: Option[O] =
-    if(_having != None)
+    if(_having.isDefined)
       _having.map(c=>c())
     else
       super.havingClause

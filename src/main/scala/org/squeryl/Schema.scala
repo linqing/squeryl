@@ -194,7 +194,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       for(fmd <- t.posoMetaData.fieldsMetaData)
         yield _writeIndexDeclarationIfApplicable(fmd.columnAttributes.toSeq, Seq(fmd), None)
 
-    d0.filter(_ != None).map(_.get).toList
+    d0.filter(_.isDefined).map(_.get).toList
   }
   
 

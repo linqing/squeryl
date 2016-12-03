@@ -31,7 +31,7 @@ object UsageProfileConsolidator {
       val (dst, src) = args.map(new java.io.File(_)).splitAt(1)
 
       val notExists = src.filterNot(_.exists)
-      if(notExists.size > 0)
+      if(notExists.length > 0)
         org.squeryl.internals.Utils.throwError("Files don't exist : \n" + notExists.mkString(",\n"))
 
 
@@ -53,7 +53,7 @@ object UsageProfileConsolidator {
               (StatsSchema.statementInvocations.allRows, StatsSchema.statements.allRows)
             }
 
-          val stmtsToInsert = statements.filter(stmt => StatsSchema.statements.lookup(stmt.id) == None)
+          val stmtsToInsert = statements.filter(stmt => StatsSchema.statements.lookup(stmt.id).isEmpty)
           StatsSchema.statements.insert(stmtsToInsert)
 
           StatsSchema.statementInvocations.insert(invocations)

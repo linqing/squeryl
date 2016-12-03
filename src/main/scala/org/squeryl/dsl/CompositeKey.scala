@@ -25,7 +25,7 @@ trait CompositeKey {
   private [squeryl] var _propertyName: Option[String] = None
 
   private [squeryl] def _fields: Seq[FieldMetaData] =
-    if(_members == None)
+    if(_members.isEmpty)
       List.empty
     else
       _members.get.map(_.selectElement.asInstanceOf[FieldSelectElement].fieldMetaData)

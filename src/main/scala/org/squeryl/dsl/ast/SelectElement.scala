@@ -142,13 +142,13 @@ class TupleSelectElement
   def prepareColumnMapper(index: Int): Unit = {}
 
   def typeOfExpressionToString: String =
-    if(columnToTupleMapper == None)
+    if(columnToTupleMapper.isEmpty)
       "unknown"
     else
       columnToTupleMapper.get.typeOfExpressionToString(indexInTuple)
 
   override def prepareMapper(jdbcIndex: Int): Unit =
-    if(columnToTupleMapper != None)
+    if(columnToTupleMapper.isDefined)
       columnToTupleMapper.get.activate(indexInTuple, jdbcIndex)
 
   override def toString: String =
@@ -184,7 +184,7 @@ class FieldSelectElement
   private var columnMapper: Option[ColumnToFieldMapper] = None
 
   def prepareMapper(jdbcIndex: Int): Unit =
-    if(columnMapper != None) {
+    if(columnMapper.isDefined) {
       resultSetMapper.addColumnMapper(columnMapper.get)
       resultSetMapper.isActive = true
       _isActive = true
@@ -210,13 +210,13 @@ class ValueSelectElement
     yieldPusher = Some(new YieldValuePusher(index, this, mapper))  
 
   def typeOfExpressionToString: String =
-    if(yieldPusher == None)
+    if(yieldPusher.isEmpty)
       "unknown"
     else
       yieldPusher.get.selectElement.typeOfExpressionToString
   
   override def prepareMapper(jdbcIndex: Int): Unit =
-    if(yieldPusher != None) {
+    if(yieldPusher.isDefined) {
       resultSetMapper.addYieldValuePusher(yieldPusher.get)
       resultSetMapper.isActive = true
       _isActive = true
@@ -257,7 +257,7 @@ class SelectElementReference[A,T]
   }
 
   lazy val delegateAtUseSite: SelectElement =
-    if(selectElement.parent == None)
+    if(selectElement.parent.isEmpty)
       selectElement
     else {
       val us = this._useSite
@@ -364,7 +364,7 @@ class ExportedSelectElement
   }
 
   private def innerTarget: Option[SelectElement] =
-    if(parent == None)
+    if(parent.isEmpty)
       return None
     else {
       val parentOfThis = parent.get.asInstanceOf[QueryExpressionElements]

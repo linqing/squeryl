@@ -416,10 +416,10 @@ trait QueryDsl
       
       val e2_ = e2.get
       
-      if(!e2_._1.filterDescendantsOfType[ConstantTypedExpression[_,_]].isEmpty)
+      if(e2_._1.filterDescendantsOfType[ConstantTypedExpression[_, _]].nonEmpty)
         invalidBindingExpression
 
-      if(!e2_._2.filterDescendantsOfType[ConstantTypedExpression[_,_]].isEmpty)
+      if(e2_._2.filterDescendantsOfType[ConstantTypedExpression[_, _]].nonEmpty)
         invalidBindingExpression
 
       //invert Pair[EqualityExpression,EqualityExpression] if it has been declared in reverse :
@@ -435,9 +435,9 @@ trait QueryDsl
     }
 
     private def _viewReferedInExpression(v: View[_], ee: EqualityExpression) =
-      ee.filterDescendantsOfType[SelectElementReference[Any,Any]].filter(
+      ee.filterDescendantsOfType[SelectElementReference[Any, Any]].filter(
         _.selectElement.origin.asInstanceOf[ViewExpressionNode[_]].view == v
-      ).headOption != None
+      ).nonEmpty
 
 
     private val (leftPkFmd, leftFkFmd) = _splitEquality(_leftEqualityExpr, thisTable, isSelfReference = false)
@@ -642,7 +642,7 @@ trait QueryDsl
       val ee_ = ee.get  //here we have the equality AST (_ee) contains a left and right node, SelectElementReference
       //that refer to FieldSelectElement, who in turn refer to the FieldMetaData
 
-      if(! ee_.filterDescendantsOfType[ConstantTypedExpression[_,_]].isEmpty)
+      if(ee_.filterDescendantsOfType[ConstantTypedExpression[_, _]].nonEmpty)
         invalidBindingExpression
         
            

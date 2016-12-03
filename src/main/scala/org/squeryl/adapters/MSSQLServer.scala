@@ -133,7 +133,7 @@ class MSSQLServer extends DatabaseAdapter {
 //    }
 
   override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
-    if(qen.page == None)
+    if(qen.page.isEmpty)
       super.writeQuery(qen, sw)
     else {
       val page = qen.page.get

@@ -39,7 +39,7 @@ class DB2Adapter extends DatabaseAdapter {
     val sw = new StatementWriter(false, this)
     sw.write("create sequence ", sequenceName(t), " start with 1 increment by 1 nomaxvalue")
 
-    if(printSinkWhenWriteOnlyMode == None) {
+    if(printSinkWhenWriteOnlyMode.isEmpty) {
       val st = Session.currentSession.connection.createStatement
       st.execute(sw.statement)
     }
@@ -59,7 +59,7 @@ class DB2Adapter extends DatabaseAdapter {
 
     val autoIncPK = t.posoMetaData.fieldsMetaData.find(fmd => fmd.isAutoIncremented)
 
-    if (autoIncPK == None) {
+    if (autoIncPK.isEmpty) {
       super.writeInsert(o, t, sw)
       return
     }
@@ -87,7 +87,7 @@ class DB2Adapter extends DatabaseAdapter {
   override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
   override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
-    if (qen.page == None)
+    if (qen.page.isEmpty)
       super.writeQuery(qen, sw)
     else {
       sw.write("select sq____1.* from (")

@@ -323,7 +323,7 @@ trait FieldMapper {
     get(nonNativeType).mapper.convertToJdbc(r)
   
   def isSupported(c: Class[_]) =
-    lookup(c) != None ||
+    lookup(c).isDefined ||
     c.isAssignableFrom(classOf[Some[_]]) ||
     classOf[Product1[Any]].isAssignableFrom(c)
   
@@ -368,7 +368,7 @@ trait FieldMapper {
     
     val wasThere = registry.put(z.clasz, z)
     
-    if(wasThere != None)
+    if(wasThere.isDefined)
       Utils.throwError("field type "+ z.clasz + " already registered, handled by " + m.getClass.getCanonicalName)
   }
   
@@ -382,7 +382,7 @@ trait FieldMapper {
     
     val wasThere = registry.put(z.clasz, z)
     
-    if(wasThere != None)
+    if(wasThere.isDefined)
       Utils.throwError("field type "+ z.clasz + " already registered, handled by " + m.getClass.getCanonicalName)
   }
   

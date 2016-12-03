@@ -136,7 +136,7 @@ object StatsSchema extends Schema {
     val storedStatement = statements.lookup(s.id)
 
     val result =
-      if(storedStatement == None) {
+      if(storedStatement.isEmpty) {
         statements.insert(s)
         s
       }
@@ -155,7 +155,7 @@ object StatsSchema extends Schema {
             st == s
           })
 
-        if(mathingStatement != None)
+        if(mathingStatement.isDefined)
           mathingStatement.get
         else {
           s.statementHashCollisionNumber = lastCollisionNum + 1

@@ -601,7 +601,7 @@ trait DatabaseAdapter {
 
     sw.write("delete from ")
     sw.write(quoteName(t.prefixedName))
-    if(whereClause != None) {
+    if(whereClause.isDefined) {
       sw.nextLine
       sw.write("where")
       sw.nextLine
@@ -670,7 +670,7 @@ trait DatabaseAdapter {
     
     sw.unindent
 
-    if(us.whereClause != None) {
+    if(us.whereClause.isDefined) {
       sw.nextLine
       sw.write("Where")
       sw.nextLine
@@ -701,7 +701,7 @@ trait DatabaseAdapter {
     foreignKeyTable.name + "FK" + idWithinSchema
 
   def viewAlias(vn: ViewExpressionNode[_]) =
-     if(vn.view.prefix != None)
+     if(vn.view.prefix.isDefined)
        vn.view.prefix.get + "_" + vn.view.name + vn.uniqueId.get
      else
        vn.view.name + vn.uniqueId.get
@@ -811,9 +811,9 @@ trait DatabaseAdapter {
 
     val tableName = columnDefs.head.parentMetaData.viewOrTable.prefixedName
 
-    if(name != None)
+    if(name.isDefined)
       sb.append(quoteName(name.get))
-    else if(nameOfCompositeKey != None)
+    else if(nameOfCompositeKey.isDefined)
       sb.append(quoteName("idx" + nameOfCompositeKey.get))
     else
       sb.append(quoteName("idx" + generateAlmostUniqueSuffixWithHash(tableName + "-" + columnDefs.map(_.columnName).mkString("-"))))

@@ -39,13 +39,13 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
   def name: String = schema.tableNameFromClassName(_name)
 
   def prefix: Option[String] =
-    if(_prefix != None)
+    if(_prefix.isDefined)
       _prefix
     else
       schema.name
 
   def prefixedName: String =
-    if(prefix != None)
+    if(prefix.isDefined)
       prefix.get + "." + name
     else
       name
@@ -56,7 +56,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
    * used for creating names for objects derived from a table, ex.: a sequence 
    */
   def prefixedPrefixedName(s: String): String =
-    if(prefix != None)
+    if(prefix.isDefined)
       prefix.get + "." + s + name
     else
       s + name

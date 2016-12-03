@@ -95,7 +95,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def sample:AnyRef = _sample.get
 
   def owns(aSample: AnyRef): Boolean =
-    _sample != None && _sample.get.eq(aSample)
+    _sample.isDefined && _sample.get.eq(aSample)
   
   def getOrCreateSelectElement(fmd: FieldMetaData, forScope: QueryExpressionElements) = throw new UnsupportedOperationException("implement me")
 
@@ -116,7 +116,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       commonTableExpressions.toList,
       views.toList,
       subQueries.toList,
-      tableExpressions.filter(e=> e.joinExpression != None).map(_.joinExpression.get).toList,  
+      tableExpressions.filter(e=> e.joinExpression.isDefined).map(_.joinExpression.get).toList,
       whereClause.toList,
       groupByClause.toList,
       havingClause.toList,
@@ -125,7 +125,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     ).flatten
 
   def isChild(q: QueryableExpressionNode):Boolean =
-    views.find(n => n == q) != None
+    views.find(n => n == q).isDefined
 
   def selectDistinct: Boolean = _query.selectDistinct
 
@@ -220,7 +220,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   def doWrite(sw: StatementWriter): Unit = {
     def writeCompleteQuery = {
-      val isNotRoot = parent != None
+      val isNotRoot = parent.isDefined
       val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
 
       if((isNotRoot && ! isContainedInUnion) || hasUnionQueryOptions) {
@@ -228,7 +228,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
         sw.indent(1)
       }
 
-      if (! unionClauses.isEmpty) {
+      if (unionClauses.nonEmpty) {
         sw.write("(")
         sw.nextLine
         sw.indent(1)
@@ -236,7 +236,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
       sw.databaseAdapter.writeQuery(this, sw)
 
-      if (! unionClauses.isEmpty) {
+      if (unionClauses.nonEmpty) {
         sw.unindent(1)
         sw.write(")")
         sw.nextLine

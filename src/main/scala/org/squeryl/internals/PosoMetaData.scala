@@ -130,7 +130,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
     val k = fmds.find(fmd => fmd.isIdFieldOfKeyedEntity)
 
     val compositePrimaryKeyGetter: Option[Method] =
-      if(k != None) // can't have both PK Field and CompositePK
+      if(k.isDefined) // can't have both PK Field and CompositePK
         None
       else {
         // verify if we have an 'id' method that is a composite key, in this case we need to construct a
@@ -147,9 +147,9 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
       }
 
     val metaDataForPk: Option[Either[FieldMetaData,Method]] =
-      if(k != None)
+      if(k.isDefined)
         Some(Left(k.get))
-      else if(compositePrimaryKeyGetter != None)
+      else if(compositePrimaryKeyGetter.isDefined)
         Some(Right(compositePrimaryKeyGetter.get))
       else
         None
@@ -161,7 +161,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
     fieldsMetaData.find(fmd => fmd.isOptimisticCounter)
 
   if(isOptimistic)
-    assert(optimisticCounter != None)
+    assert(optimisticCounter.isDefined)
 
   def _const = {
 
@@ -192,7 +192,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
         org.squeryl.internals.Utils.throwError("inner classes are not supported, except when outer class is a singleton (object)\ninner class is : " + cn)
     }
 
-    val res = new Array[Object](params.size)
+    val res = new Array[Object](params.length)
 
     for(i <- 0 to params.length -1) {
       val v = FieldMetaData.createDefaultValue(schema.fieldMapper, c, params(i), None, None)
@@ -239,7 +239,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
 
   private def _groupOfMembersIsProperty(property: (Option[Field], Option[Method], Option[Method], Set[Annotation])): Boolean  = {
 
-    if(property._4.find(an => an.isInstanceOf[Transient]) != None)
+    if(property._4.find(an => an.isInstanceOf[Transient]).isDefined)
       return false
 
     val hasAField = property._1.map { field =>
@@ -267,7 +267,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
       memberTypes.append(property._3.get.getParameterTypes.apply(0))
 
     //not a property if it has no getter, setter or field
-    if(memberTypes.size == 0)
+    if(memberTypes.isEmpty)
       return false
 
     //verify that all types are compatible :

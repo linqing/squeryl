@@ -271,7 +271,7 @@ trait BaseColumnAttributeAssignment {
   def columnAttributes: Seq[ColumnAttribute]
 
   def hasAttribute[A <: ColumnAttribute](implicit m: Manifest[A]): Boolean =
-    findAttribute[A](m) != None
+    findAttribute[A](m).isDefined
 
   def findAttribute[A <: ColumnAttribute](implicit m: Manifest[A]): Option[ColumnAttribute] =
     columnAttributes.find(ca => m.runtimeClass.isAssignableFrom(ca.getClass))
@@ -306,7 +306,7 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
     fmdHead.parentMetaData.viewOrTable.ked.map(_.idPropertyName == group._propertyName).getOrElse(false)
   }
 
-  assert(group._propertyName != None)
+  assert(group._propertyName.isDefined)
 
   override def name:Option[String] = group._propertyName
 }
@@ -497,13 +497,13 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
    * When the join syntax is used, isMemberOfJoinList is true if this instance is not in the from clause
    * but a 'join element'. 
    */
-  def isMemberOfJoinList: Boolean = joinKind != None
+  def isMemberOfJoinList: Boolean = joinKind.isDefined
 
   // new join syntax
   var joinKind: Option[(String,String)] = None
 
   def isOuterJoined: Boolean =
-    joinKind != None && joinKind.get._2 == "outer"
+    joinKind.isDefined && joinKind.get._2 == "outer"
 
   var joinExpression: Option[LogicalBoolean] = None
 
