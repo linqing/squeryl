@@ -26,12 +26,12 @@ class MSSQLServer extends DatabaseAdapter {
 
   override def intTypeDeclaration = "int"
   override def stringTypeDeclaration = "varchar"
-  override def stringTypeDeclaration(length:Int) = "varchar("+length+")"
+  override def stringTypeDeclaration(length:Int): String = "varchar("+length+")"
   override def booleanTypeDeclaration = "bit"
   override def doubleTypeDeclaration = "float"
   override def longTypeDeclaration = "bigint"
   override def bigDecimalTypeDeclaration = "decimal"
-  override def bigDecimalTypeDeclaration(precision:Int, scale:Int) = "numeric(" + precision + "," + scale + ")"
+  override def bigDecimalTypeDeclaration(precision:Int, scale:Int): String = "numeric(" + precision + "," + scale + ")"
   override def binaryTypeDeclaration = "varbinary(8000)"
 
 
@@ -59,23 +59,23 @@ class MSSQLServer extends DatabaseAdapter {
   override def isTableDoesNotExistException(e: SQLException): Boolean =
     e.getErrorCode == 3701
 
-  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter) = {}
+  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
-  override def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if(qen.isForUpdate) {
       sw.write("with(updlock, rowlock)")
       sw.pushPendingNextLine
     }
   
-  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) =
+  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " + ", newLineAfterSeparator = false)
 
-  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     val binaryOpNode = new BinaryOperatorNode(left, right, "+")
     binaryOpNode.doWrite(sw)
   }
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     // If you are keen enough you can implement a UDF and subclass this method to call out to it.
     // http://msdn.microsoft.com/en-us/magazine/cc163473.aspx
     throw new UnsupportedOperationException("MSSQL does not yet support a regex function")
@@ -131,7 +131,7 @@ class MSSQLServer extends DatabaseAdapter {
 //      println(sw.statement)
 //    }
 
-  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if(qen.page == None)
       super.writeQuery(qen, sw)
     else {
@@ -144,6 +144,6 @@ class MSSQLServer extends DatabaseAdapter {
       }
     }
   
-  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter) = {}
-  override def quoteIdentifier(s: String) = "[" + s + "]"
+  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
+  override def quoteIdentifier(s: String): String = "[" + s + "]"
 }

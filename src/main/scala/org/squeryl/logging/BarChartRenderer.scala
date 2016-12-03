@@ -8,14 +8,14 @@ object BarChartRenderer {
 
   class Stat(val title: String, val xAxisLabel: String, val lines: Iterable[StatLine], measureFromLike: StatLine => String) {
 
-    def queryLabelsJSArray =
+    def queryLabelsJSArray: String =
       lines.map(sl => "'" + sl.statement.definitionOrCallSite + "'").mkString("[",",","]")
 
-    def measuresJSArray =
+    def measuresJSArray: String =
       lines.map(measureFromLike(_)).mkString("[",",","]")
   }
 
-  def generateStatSummary(staticHtmlFile: java.io.File, n: Int) = {
+  def generateStatSummary(staticHtmlFile: java.io.File, n: Int): Unit = {
 
 
 
@@ -74,7 +74,7 @@ object BarChartRenderer {
     }
   """
 
-  def funcCalls(stats: Seq[Stat]) = {
+  def funcCalls(stats: Seq[Stat]): String = {
     val sb = new java.lang.StringBuilder
     var i = 0
     for(s <- stats) {

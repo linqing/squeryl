@@ -26,7 +26,7 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
 
   private var _connection: Option[Connection] = None
 
-  def hasConnection = _connection != None
+  def hasConnection: Boolean = _connection != None
 
   var originalAutoCommit = true
 
@@ -189,19 +189,19 @@ trait AbstractSession {
 
   def statisticsListener: Option[StatisticsListener]
 
-  def bindToCurrentThread = Session.currentSession = Some(this)
+  def bindToCurrentThread: Unit = Session.currentSession = Some(this)
 
-  def unbindFromCurrentThread = Session.currentSession = None
+  def unbindFromCurrentThread: Unit = Session.currentSession = None
 
   private var _logger: String => Unit = null
 
-  def logger_=(f: String => Unit) = _logger = f
+  def logger_=(f: String => Unit): Unit = _logger = f
 
-  def setLogger(f: String => Unit) = _logger = f
+  def setLogger(f: String => Unit): Unit = _logger = f
 
-  def isLoggingEnabled = _logger != null
+  def isLoggingEnabled: Boolean = _logger != null
 
-  def log(s:String) = if(isLoggingEnabled) _logger(s)
+  def log(s:String): Unit = if(isLoggingEnabled) _logger(s)
 
   var logUnclosedStatements = false
 
@@ -213,7 +213,7 @@ trait AbstractSession {
 
   private [squeryl] def _addResultSet(rs: ResultSet) = _resultSets.append(rs)
 
-  def cleanup = {
+  def cleanup: Unit = {
     _statements.foreach(s => {
       if (logUnclosedStatements && isLoggingEnabled && !s.isClosed) {
         val stackTrace = Thread.currentThread.getStackTrace.map("at " + _).mkString("\n")
@@ -228,7 +228,7 @@ trait AbstractSession {
     FieldReferenceLinker.clearThreadLocalState()
   }
 
-  def close = {
+  def close: Unit = {
     cleanup
     if(hasConnection)
       connection.close
@@ -296,10 +296,10 @@ object Session {
     else currentSessionOption.getOrElse(
       throw new IllegalStateException("No session is bound to current thread, a session must be created via Session.create \nand bound to the thread via 'work' or 'bindToCurrentThread'\n Usually this error occurs when a statement is executed outside of a transaction/inTrasaction block"))
 
-  def hasCurrentSession =
+  def hasCurrentSession: Boolean =
     currentSessionOption != None
 
-  def cleanupResources =
+  def cleanupResources: Unit =
     currentSessionOption foreach (_.cleanup)
 
   private[squeryl] def currentSession_=(s: Option[AbstractSession]) =

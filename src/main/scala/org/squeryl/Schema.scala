@@ -26,7 +26,7 @@ import org.squeryl.internals.FieldMapper
 
 class Schema(implicit val fieldMapper: FieldMapper) {
 
-  protected implicit def thisSchema = this
+  protected implicit def thisSchema: Schema = this
 
   /**
    * Contains all Table[_]s in this shema, and also all ManyToManyRelation[_,_,_]s (since they are also Table[_]s
@@ -81,23 +81,23 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     _tables.filter(_.posoMetaData.clasz == c).asInstanceOf[Iterable[Table[A]]]
   }
 
-  def findAllTablesFor[A](c: Class[A]) =
+  def findAllTablesFor[A](c: Class[A]): Traversable[Table[_]] =
     _tables.filter(t => c.isAssignableFrom(t.posoMetaData.clasz)).asInstanceOf[Traversable[Table[_]]]
 
 
   object NamingConventionTransforms {
     
     @deprecated("use snakify() instead as of 0.9.5beta","0.9.5")
-    def camelCase2underScore(name: String) =
+    def camelCase2underScore(name: String): String =
       name.toList.map(c => if(c.isUpper) "_" + c else c).mkString
       
-    def snakify(name: String) =
+    def snakify(name: String): String =
       name.replaceAll("^([^A-Za-z_])", "_$1").replaceAll("([A-Z]+)([A-Z][a-z])", "$1_$2").replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase
   }
 
-  def columnNameFromPropertyName(propertyName: String) = propertyName
+  def columnNameFromPropertyName(propertyName: String): String = propertyName
 
-  def tableNameFromClassName(tableName: String) = tableName
+  def tableNameFromClassName(tableName: String): String = tableName
 
   def name: Option[String] = None
 
@@ -177,7 +177,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }  
 
-  def create = {
+  def create: Unit = {
     _createTables
     if(_dbAdapter.supportsForeignKeyConstraints)
       _declareForeignKeyConstraints
@@ -214,7 +214,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
   
-  def createColumnGroupConstraintsAndIndexes =
+  def createColumnGroupConstraintsAndIndexes: Unit =
     for(statement <- _writeColumnGroupAttributeAssignments)
       _executeDdl(statement)
 
@@ -366,8 +366,8 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   }
 
   class ReferentialActionImpl(token: String, ev: ReferentialEvent) extends ReferentialAction {
-    def event = ev.eventName
-    def action = token
+    def event: String = ev.eventName
+    def action: String = token
   }
   
   protected def onUpdate = new ReferentialEvent("update")
@@ -383,7 +383,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     fkd
   }
 
-  def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration) =
+  def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration): Unit =
     foreignKeyDeclaration.constrainReference
 
   /**
@@ -393,7 +393,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
    * default is (20,16)
    */
   
-  def defaultSizeOfBigDecimal = (20,16)
+  def defaultSizeOfBigDecimal: (Int, Int) = (20,16)
 
   /**
    * @return the default database storage (column) length for String columns for this Schema,
@@ -405,12 +405,12 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   /**
    * protected since table declarations must only be done inside a Schema
    */
-  protected def declare[B](a: BaseColumnAttributeAssignment*) = a
+  protected def declare[B](a: BaseColumnAttributeAssignment*): Seq[BaseColumnAttributeAssignment] = a
 
   /**
    * protected since table declarations must only be done inside a Schema
    */  
-  protected def on[A](table: Table[A]) (declarations: A=>Seq[BaseColumnAttributeAssignment]) = {
+  protected def on[A](table: Table[A]) (declarations: A=>Seq[BaseColumnAttributeAssignment]): Unit = {
 
     if(table == null)
       org.squeryl.internals.Utils.throwError("on function called with null argument in " + this.getClass.getName +
@@ -474,7 +474,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   private def _addColumnGroupAttributeAssignment(cga: ColumnGroupAttributeAssignment) =
     _columnGroupAttributeAssignments.append(cga);
   
-  def defaultColumnAttributesForKeyedEntityId(typeOfIdField: Class[_]) =
+  def defaultColumnAttributesForKeyedEntityId(typeOfIdField: Class[_]): Set[_ >: PrimaryKey <: AttributeValidOnNumericalColumn with Product with Serializable] =
     if(typeOfIdField.isAssignableFrom(classOf[java.lang.Long]) || typeOfIdField.isAssignableFrom(classOf[java.lang.Integer]))
       Set(new PrimaryKey, new AutoIncremented(None))
     else
@@ -613,13 +613,13 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     /**
      * Same as {{{table.insert(a)}}}
      */
-    def save =
+    def save: Option[Unit] =
       _performAction(_.insert(a))
 
     /**
      * Same as {{{table.update(a)}}}
      */  
-    def update(implicit ked: KeyedEntityDef[A,_]) =
+    def update(implicit ked: KeyedEntityDef[A,_]): Option[Unit] =
       _performAction(_.update(a))
       
   }

@@ -6,13 +6,13 @@ import org.squeryl.InternalFieldMapper._
 
 object LocalH2SinkStatisticsListener {
 
-  def initializeOverwrite(schemaName: String, workingDir: String = ".") =
+  def initializeOverwrite(schemaName: String, workingDir: String = "."): LocalH2SinkStatisticsListener =
     initialize(schemaName, overwrite = true, workingDir)
 
-  def initializeAppend(schemaName: String, workingDir: String = ".") =
+  def initializeAppend(schemaName: String, workingDir: String = "."): LocalH2SinkStatisticsListener =
     initialize(schemaName, overwrite = false, workingDir)
 
-  def initialize(schemaName: String, overwrite: Boolean, workingDir: String) = {
+  def initialize(schemaName: String, overwrite: Boolean, workingDir: String): LocalH2SinkStatisticsListener = {
     Class.forName("org.h2.Driver");
 
     val file = new java.io.File(workingDir, schemaName + ".h2.db").getCanonicalFile
@@ -53,7 +53,7 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
 
   _worker.start
 
-  def shutdown = _closed = true
+  def shutdown: Unit = _closed = true
 
   private def _pushOp(op: =>Unit) =
     if(!_closed) {
@@ -62,23 +62,23 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
     else
       throw new IllegalStateException('LocalH2SinkStatisticsListener + " has been shutdown.")
 
-  def generateStatSummary(staticHtmlFile: java.io.File, n: Int) = _pushOp {
+  def generateStatSummary(staticHtmlFile: java.io.File, n: Int): Unit = _pushOp {
     BarChartRenderer.generateStatSummary(staticHtmlFile, n)
   }
 
-  def queryExecuted(se: StatementInvocationEvent) =_pushOp {
+  def queryExecuted(se: StatementInvocationEvent): Unit =_pushOp {
     StatsSchema.recordStatementInvocation(se)
     h2Session.connection.commit
   }
 
-  def resultSetIterationEnded(invocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean) = _pushOp {
+  def resultSetIterationEnded(invocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean): Unit = _pushOp {
     StatsSchema.recordEndOfIteration(invocationId, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean)
     h2Session.connection.commit
   }
 
-  def updateExecuted(se: StatementInvocationEvent) = {}
+  def updateExecuted(se: StatementInvocationEvent): Unit = {}
 
-  def insertExecuted(se: StatementInvocationEvent) = {}
+  def insertExecuted(se: StatementInvocationEvent): Unit = {}
 
-  def deleteExecuted(se: StatementInvocationEvent) = {}
+  def deleteExecuted(se: StatementInvocationEvent): Unit = {}
 }

@@ -35,7 +35,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
     schema._callbacks.get(this).getOrElse(NoOpPosoLifecycleEventListener)
 
 
-  def name = schema.tableNameFromClassName(_name)
+  def name: String = schema.tableNameFromClassName(_name)
 
   def prefix: Option[String] =
     if(_prefix != None)
@@ -43,7 +43,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
     else
       schema.name
 
-  def prefixedName =
+  def prefixedName: String =
     if(prefix != None)
       prefix.get + "." + name
     else
@@ -54,7 +54,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
    * myTable.prefixedPrefixedName("z") will yield : prefix.zMyTable
    * used for creating names for objects derived from a table, ex.: a sequence 
    */
-  def prefixedPrefixedName(s: String) =
+  def prefixedPrefixedName(s: String): String =
     if(prefix != None)
       prefix.get + "." + s + name
     else
@@ -66,7 +66,7 @@ class View[T] private [squeryl](_name: String, private[squeryl] val classOfT: Cl
 
   private [squeryl] def allFieldsMetaData: Iterable[FieldMetaData] = posoMetaData.fieldsMetaData
 
-  protected val _setPersisted =
+  protected val _setPersisted: (T) => Unit =
     if(classOf[PersistenceStatus].isAssignableFrom(classOfT))
       (t:T) => t.asInstanceOf[PersistenceStatus]._isPersisted = true
     else
