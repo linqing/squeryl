@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.squeryl.logging
 
-import org.squeryl.dsl.{CompositeKey2, GroupWithMeasures, TLong, TypedExpression}
-import org.squeryl.{KeyedEntity, Query, Schema, Table}
+import org.squeryl.dsl.{CompositeKey2, TLong, TypedExpression}
+import org.squeryl.{KeyedEntity, Schema, Table}
 
 object StatsSchemaTypeMode extends org.squeryl.PrimitiveTypeMode
 import org.squeryl.logging.StatsSchemaTypeMode._
@@ -87,7 +87,7 @@ object StatsSchema extends Schema {
 
   val statementInvocations: Table[StatementInvocation] = table[StatementInvocation]
 
-  def invocationStats: Query[GroupWithMeasures[Product2[Int, Int], Product4[Option[Float], Long, Nothing, Float]]] =
+  def invocationStats =
     from(statementInvocations)((si) =>
       groupBy(si.statementHash, si.statementHashCollisionNumber)
       compute(avg(si.executeTime), count, sum(si.executeTime), nvl(avg(si.rowCount),0))
@@ -95,7 +95,8 @@ object StatsSchema extends Schema {
 
   import Measure._
 
-  def topRankingStatements(topN: Int, measure: Measure): Query[Nothing] =
+  //noinspection TypeAnnotation
+  def topRankingStatements(topN: Int, measure: Measure) =
     from(invocationStats, statements)((si,s)=>
       where(si.key._1 === s.hash and si.key._2 === s.statementHashCollisionNumber)
         .select(new StatLine(s, si.measures._1.get, si.measures._2, si.measures._3.get, si.measures._4))
@@ -136,7 +137,7 @@ object StatsSchema extends Schema {
     val storedStatement = statements.lookup(s.id)
 
     val result =
-      if(storedStatement.isEmpty) {
+      if(storedStatement == None) {
         statements.insert(s)
         s
       }
@@ -155,7 +156,7 @@ object StatsSchema extends Schema {
             st == s
           })
 
-        if(mathingStatement.isDefined)
+        if(mathingStatement != None)
           mathingStatement.get
         else {
           s.statementHashCollisionNumber = lastCollisionNum + 1
