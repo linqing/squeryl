@@ -16,16 +16,19 @@
 package org.squeryl.internals
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.{Field, Method, Constructor, InvocationTargetException, Type, ParameterizedType}
+import java.lang.reflect.{Constructor, Field, InvocationTargetException, Method, ParameterizedType, Type}
 import java.sql.ResultSet
+
 import scala.annotation.tailrec
-import org.squeryl.annotations.{ColumnBase, Column}
+import org.squeryl.annotations.{Column, ColumnBase}
+
 import collection.mutable.{HashMap, HashSet}
-import org.squeryl.Session
+import org.squeryl.{Schema, Session}
 import org.squeryl.dsl.CompositeKey
 import org.squeryl.customtypes.CustomType
 import org.json4s.scalap.scalasig._
 import java.lang.reflect.Member
+
 import org.squeryl.dsl.ast.ConstantTypedExpression
 import org.squeryl.customtypes.CustomType
 
@@ -44,7 +47,7 @@ class FieldMetaData(
                      val isOptimisticCounter: Boolean,
                      val sampleValue: Any) {
 
-  def nativeJdbcType =
+  def nativeJdbcType: Class[_] =
     this.schema.fieldMapper.nativeJdbcTypeFor(wrappedFieldType)
 
   /**
@@ -58,7 +61,7 @@ class FieldMetaData(
     }
 
 
-  def canonicalEnumerationValueFor(id: Int) =
+  def canonicalEnumerationValueFor(id: Int): (_$1#Value) forSome {type _$1 >: Enumeration <: Enumeration} =
     if (sampleValue == null)
       org.squeryl.internals.Utils.throwError("classes with Enumerations must have a zero param constructor that assigns a sample to the enumeration field")
     else
@@ -113,7 +116,7 @@ class FieldMetaData(
     }
   }
 
-  def isIdFieldOfKeyedEntity =
+  def isIdFieldOfKeyedEntity: Boolean =
     parentMetaData.viewOrTable.ked.exists(_.idPropertyName == nameOfProperty)
 
   if (isIdFieldOfKeyedEntity && !classOf[CompositeKey].isAssignableFrom(wrappedFieldType)) {
@@ -148,10 +151,10 @@ class FieldMetaData(
     */
   def explicitDbTypeCast: Boolean = _columnAttributes.collectFirst { case d: DBType => d.explicit }.getOrElse(false)
 
-  def isTransient =
+  def isTransient: Boolean =
     _columnAttributes.exists(_.isInstanceOf[IsTransient])
 
-  def isCustomType = customTypeFactory.isDefined
+  def isCustomType: Boolean = customTypeFactory.isDefined
 
   /**
     * @return the length defined in org.squeryl.annotations.Column.length
@@ -178,12 +181,12 @@ class FieldMetaData(
     else
       columnAnnotation.get.scale
 
-  def schema = parentMetaData.schema
+  def schema: Schema = parentMetaData.schema
 
   /**
     * The name of the database column
     */
-  def columnName =
+  def columnName: String =
     if (columnAnnotation.isEmpty) {
       val nameDefinedInSchema = _columnAttributes.collectFirst { case n: Named => n.name }
       parentMetaData.schema.columnNameFromPropertyName(nameDefinedInSchema.getOrElse(nameOfProperty))
@@ -201,23 +204,23 @@ class FieldMetaData(
         res
     }
 
-  protected def createResultSetHandler =
+  protected def createResultSetHandler: (ResultSet, Int) => AnyRef =
     this.schema.fieldMapper.resultSetHandlerFor(wrappedFieldType)
 
-  val resultSetHandler = createResultSetHandler
+  val resultSetHandler: (ResultSet, Int) => AnyRef = createResultSetHandler
 
   if (!isCustomType)
     assert(fieldType == wrappedFieldType,
       "expected fieldType == wrappedFieldType in primitive type mode, got " +
         fieldType.getName + " != " + wrappedFieldType.getName)
 
-  override def toString =
+  override def toString: String =
     parentMetaData.clasz.getSimpleName + "." + columnName + ":" + displayType
 
-  def isStringType =
+  def isStringType: Boolean =
     wrappedFieldType.isAssignableFrom(classOf[String])
 
-  def displayType =
+  def displayType: String =
     if (isOption)
       "Option[" + fieldType.getName + "]"
     else
@@ -241,22 +244,22 @@ class FieldMetaData(
     * ))
     * </pre>
     */
-  def declaredAsPrimaryKeyInSchema =
+  def declaredAsPrimaryKeyInSchema: Boolean =
     columnAttributes.exists(_.isInstanceOf[PrimaryKey])
 
-  def isAutoIncremented =
+  def isAutoIncremented: Boolean =
     columnAttributes.exists(_.isInstanceOf[AutoIncremented])
 
   /**
     * Inserts will only set values for a column if isInsertable is true
     */
-  def isInsertable =
+  def isInsertable: Boolean =
     !columnAttributes.exists(_.isInstanceOf[Uninsertable])
 
   /**
     * Updates will only set values for a column if isUpdatable is true
     */
-  def isUpdatable =
+  def isUpdatable: Boolean =
     !columnAttributes.exists(_.isInstanceOf[Unupdatable])
 
   /**
@@ -292,7 +295,7 @@ class FieldMetaData(
     schema.fieldMapper.nativeJdbcValueFor(wrappedFieldType, r)
   }
 
-  def setFromResultSet(target: AnyRef, rs: ResultSet, index: Int) = {
+  def setFromResultSet(target: AnyRef, rs: ResultSet, index: Int): Unit = {
     val v = resultSetHandler(rs, index)
     set(target, v)
   }
@@ -375,7 +378,7 @@ object FieldMetaData {
         c._1.newInstance(c._2: _*).asInstanceOf[AnyRef]
       }
 
-    def build(parentMetaData: PosoMetaData[_], name: String, property: (Option[Field], Option[Method], Option[Method], Set[Annotation]), sampleInstance4OptionTypeDeduction: AnyRef, isOptimisticCounter: Boolean) = {
+    def build(parentMetaData: PosoMetaData[_], name: String, property: (Option[Field], Option[Method], Option[Method], Set[Annotation]), sampleInstance4OptionTypeDeduction: AnyRef, isOptimisticCounter: Boolean): FieldMetaData = {
 
       val fieldMapper = parentMetaData.schema.fieldMapper
 
@@ -541,7 +544,7 @@ object FieldMetaData {
     })
   }
 
-  def defaultFieldLength(fieldType: Class[_], fmd: FieldMetaData) = {
+  def defaultFieldLength(fieldType: Class[_], fmd: FieldMetaData): Int = {
     if (classOf[String].isAssignableFrom(fieldType))
       fmd.schema.defaultLengthOfString
     else if (classOf[java.math.BigDecimal].isAssignableFrom(fieldType) || classOf[scala.math.BigDecimal].isAssignableFrom(fieldType)) {

@@ -61,20 +61,20 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
 
     indentWidth = outer.indentWidth
 
-    override def surrogate = outer.surrogate
+    override def surrogate: StatementWriter = outer.surrogate
 
-    override def addParam(p: StatementParam) = outer.addParam(p)
+    override def addParam(p: StatementParam): Unit = outer.addParam(p)
   }
 
   def params: Iterable[StatementParam] = _paramList
 
   private val _stringBuilder = new StringBuilder(256)
 
-  def statement = _stringBuilder.toString
+  def statement: String = _stringBuilder.toString
 
-  def addParam(p: StatementParam) = _paramList.append(p)
+  def addParam(p: StatementParam): Unit = _paramList.append(p)
 
-  override def toString =
+  override def toString: String =
     if (_paramList.isEmpty)
       statement
     else
@@ -84,9 +84,9 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
 
   private var indentWidth = 0
 
-  def indent(width: Int) = indentWidth += width
+  def indent(width: Int): Unit = indentWidth += width
 
-  def unindent(width: Int) = indentWidth -= width
+  def unindent(width: Int): Unit = indentWidth -= width
 
   def indent(): Unit = indent(INDENT_INCREMENT)
 
@@ -104,14 +104,14 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     for (i <- 1 to c)
       _append(" ")
 
-  def nextLine() = {
+  def nextLine(): Unit = {
     _append("\n")
     _writeIndentSpaces()
   }
 
   private var _lazyPendingLine: Option[() => Unit] = None
 
-  def pushPendingNextLine() =
+  def pushPendingNextLine(): Unit =
     _lazyPendingLine = Some(() => nextLine())
 
   private def _flushPendingNextLine() =
@@ -122,7 +122,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
       lpl()
     }
 
-  def writeLines(s: String*) = {
+  def writeLines(s: String*): Unit = {
     val size = s.size
     val c = 1
 
@@ -133,7 +133,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     }
   }
 
-  def writeLinesWithSeparator(s: Iterable[String], separator: String) = {
+  def writeLinesWithSeparator(s: Iterable[String], separator: String): Unit = {
     val size = s.size
     var c = 1
     for (l <- s) {
@@ -145,7 +145,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     }
   }
 
-  def writeNodesWithSeparator(s: Iterable[ExpressionNode], separator: String, newLineAfterSeparator: Boolean) = {
+  def writeNodesWithSeparator(s: Iterable[ExpressionNode], separator: String, newLineAfterSeparator: Boolean): Unit = {
     val size = s.size
     var c = 1
     for (n <- s) {
@@ -159,19 +159,19 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     }
   }
 
-  def write(s: String*) =
+  def write(s: String*): Unit =
     for (s0 <- s)
       _append(s0)
 
   def writeIndented(u: => Unit): Unit =
     writeIndented(INDENT_INCREMENT, u)
 
-  def writeIndented(width: Int, u: => Unit) = {
+  def writeIndented(width: Int, u: => Unit): Unit = {
     indent(width)
     _writeIndentSpaces(width)
     u
     unindent(width)
   }
 
-  def quoteName(s: String) = databaseAdapter.quoteName(s)
+  def quoteName(s: String): String = databaseAdapter.quoteName(s)
 }
