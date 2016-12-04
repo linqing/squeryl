@@ -16,7 +16,7 @@
 
 package org.squeryl.internals
 
-import java.sql.{Date, ResultSet, Timestamp}
+import java.sql.{Date => SqlDate, ResultSet, Timestamp}
 import java.util.{UUID, Date => JDate}
 
 import org.squeryl.dsl.{ArrayJdbcMapper, _}
@@ -53,14 +53,14 @@ trait FieldMapper {
       val sample = new JDate
       val defaultColumnLength: Int = -1
 
-      def extractNativeJdbcValue(rs: ResultSet, i: Int): Date = rs.getDate(i)
+      def extractNativeJdbcValue(rs: ResultSet, i: Int): SqlDate = rs.getDate(i)
     }
 
     val sqlDateTEF = new TypedExpressionFactory[java.sql.Date, TDate] with PrimitiveJdbcMapper[java.sql.Date] {
       val sample = new java.sql.Date(0L)
       val defaultColumnLength: Int = -1
 
-      def extractNativeJdbcValue(rs: ResultSet, i: Int): Date = rs.getDate(i)
+      def extractNativeJdbcValue(rs: ResultSet, i: Int): SqlDate = rs.getDate(i)
     }
 
     val optionDateTEF = new TypedExpressionFactory[Option[JDate], TOptionDate] with DeOptionizer[JDate, JDate, TDate, Option[JDate], TOptionDate] {
@@ -68,7 +68,7 @@ trait FieldMapper {
     }
 
     val optionSqlDateTEF = new TypedExpressionFactory[Option[java.sql.Date], TOptionDate] with DeOptionizer[java.sql.Date, java.sql.Date, TDate, Option[java.sql.Date], TOptionDate] {
-      val deOptionizer: TypedExpressionFactory[Date, TDate] with PrimitiveJdbcMapper[Date] = sqlDateTEF
+      val deOptionizer: TypedExpressionFactory[SqlDate, TDate] with PrimitiveJdbcMapper[SqlDate] = sqlDateTEF
     }
 
     val timestampTEF = new TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] {
