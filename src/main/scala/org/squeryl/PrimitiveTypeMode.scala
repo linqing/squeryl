@@ -17,12 +17,12 @@ package org.squeryl
 
 
 import java.sql
-import java.sql.Timestamp
-import java.util.{Date, UUID}
+import java.sql.{Date, Timestamp}
+import java.util.{UUID, Date => JDate}
 
 import org.squeryl.dsl._
 import org.squeryl.dsl.ast._
-import org.squeryl.internals.FieldMapper
+import org.squeryl.internals.{ArrayTEF, FieldMapper}
 
 @deprecated("the PrimitiveTypeMode companion object is deprecated, you should define a mix in the trait for your application. See : http://squeryl.org/0.9.6.html",
   "0.9.6")
@@ -36,32 +36,32 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
   // =========================== Non Numerical =========================== 
   implicit val stringTEF: TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] = PrimitiveTypeSupport.stringTEF
   implicit val optionStringTEF: TypedExpressionFactory[Option[String], TOptionString] with DeOptionizer[String, String, TString, Option[String], TOptionString] = PrimitiveTypeSupport.optionStringTEF
-  implicit val dateTEF: TypedExpressionFactory[Date, TDate] with PrimitiveJdbcMapper[Date] = PrimitiveTypeSupport.dateTEF
-  implicit val optionDateTEF: TypedExpressionFactory[Option[Date], TOptionDate] with DeOptionizer[Date, Date, TDate, Option[Date], TOptionDate] = PrimitiveTypeSupport.optionDateTEF
+  implicit val dateTEF: TypedExpressionFactory[JDate, TDate] with PrimitiveJdbcMapper[JDate] = PrimitiveTypeSupport.dateTEF
+  implicit val optionDateTEF: TypedExpressionFactory[Option[JDate], TOptionDate] with DeOptionizer[JDate, JDate, TDate, Option[JDate], TOptionDate] = PrimitiveTypeSupport.optionDateTEF
   implicit val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = PrimitiveTypeSupport.sqlDateTEF
-  implicit val optionSqlDateTEF = PrimitiveTypeSupport.optionSqlDateTEF
-  implicit val timestampTEF = PrimitiveTypeSupport.timestampTEF
-  implicit val optionTimestampTEF = PrimitiveTypeSupport.optionTimestampTEF
-  implicit val doubleArrayTEF = PrimitiveTypeSupport.doubleArrayTEF
-  implicit val intArrayTEF = PrimitiveTypeSupport.intArrayTEF
-  implicit val longArrayTEF = PrimitiveTypeSupport.longArrayTEF
-  implicit val stringArrayTEF = PrimitiveTypeSupport.stringArrayTEF
+  implicit val optionSqlDateTEF: TypedExpressionFactory[Option[Date], TOptionDate] with DeOptionizer[Date, Date, TDate, Option[Date], TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
+  implicit val timestampTEF: TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] = PrimitiveTypeSupport.timestampTEF
+  implicit val optionTimestampTEF: TypedExpressionFactory[Option[Timestamp], TOptionTimestamp] with DeOptionizer[Timestamp, Timestamp, TTimestamp, Option[Timestamp], TOptionTimestamp] = PrimitiveTypeSupport.optionTimestampTEF
+  implicit val doubleArrayTEF: ArrayTEF[Double, TDoubleArray] = PrimitiveTypeSupport.doubleArrayTEF
+  implicit val intArrayTEF: ArrayTEF[Int, TIntArray] = PrimitiveTypeSupport.intArrayTEF
+  implicit val longArrayTEF: ArrayTEF[Long, TLongArray] = PrimitiveTypeSupport.longArrayTEF
+  implicit val stringArrayTEF: ArrayTEF[String, TStringArray] = PrimitiveTypeSupport.stringArrayTEF
 
   // =========================== Numerical Integral =========================== 
-  implicit val byteTEF = PrimitiveTypeSupport.byteTEF
-  implicit val optionByteTEF = PrimitiveTypeSupport.optionByteTEF
-  implicit val intTEF = PrimitiveTypeSupport.intTEF
-  implicit val optionIntTEF = PrimitiveTypeSupport.optionIntTEF
-  implicit val longTEF = PrimitiveTypeSupport.longTEF
-  implicit val optionLongTEF = PrimitiveTypeSupport.optionLongTEF
+  implicit val byteTEF: IntegralTypedExpressionFactory[Byte, TByte, Float, TFloat] with PrimitiveJdbcMapper[Byte] = PrimitiveTypeSupport.byteTEF
+  implicit val optionByteTEF: IntegralTypedExpressionFactory[Option[Byte], TOptionByte, Option[Float], TOptionFloat] with DeOptionizer[Byte, Byte, TByte, Option[Byte], TOptionByte] = PrimitiveTypeSupport.optionByteTEF
+  implicit val intTEF: IntegralTypedExpressionFactory[Int, TInt, Float, TFloat] with PrimitiveJdbcMapper[Int] = PrimitiveTypeSupport.intTEF
+  implicit val optionIntTEF: IntegralTypedExpressionFactory[Option[Int], TOptionInt, Option[Float], TOptionFloat] with DeOptionizer[Int, Int, TInt, Option[Int], TOptionInt] = PrimitiveTypeSupport.optionIntTEF
+  implicit val longTEF: IntegralTypedExpressionFactory[Long, TLong, Double, TDouble] with PrimitiveJdbcMapper[Long] = PrimitiveTypeSupport.longTEF
+  implicit val optionLongTEF: IntegralTypedExpressionFactory[Option[Long], TOptionLong, Option[Double], TOptionDouble] with DeOptionizer[Long, Long, TLong, Option[Long], TOptionLong] = PrimitiveTypeSupport.optionLongTEF
 
   // =========================== Numerical Floating Point ===========================   
-  implicit val floatTEF = PrimitiveTypeSupport.floatTEF
-  implicit val optionFloatTEF = PrimitiveTypeSupport.optionFloatTEF
-  implicit val doubleTEF = PrimitiveTypeSupport.doubleTEF
-  implicit val optionDoubleTEF = PrimitiveTypeSupport.optionDoubleTEF
-  implicit val bigDecimalTEF = PrimitiveTypeSupport.bigDecimalTEF
-  implicit val optionBigDecimalTEF = PrimitiveTypeSupport.optionBigDecimalTEF
+  implicit val floatTEF: FloatTypedExpressionFactory[Float, TFloat] with PrimitiveJdbcMapper[Float] = PrimitiveTypeSupport.floatTEF
+  implicit val optionFloatTEF: FloatTypedExpressionFactory[Option[Float], TOptionFloat] with DeOptionizer[Float, Float, TFloat, Option[Float], TOptionFloat] = PrimitiveTypeSupport.optionFloatTEF
+  implicit val doubleTEF: FloatTypedExpressionFactory[Double, TDouble] with PrimitiveJdbcMapper[Double] = PrimitiveTypeSupport.doubleTEF
+  implicit val optionDoubleTEF: FloatTypedExpressionFactory[Option[Double], TOptionDouble] with DeOptionizer[Double, Double, TDouble, Option[Double], TOptionDouble] = PrimitiveTypeSupport.optionDoubleTEF
+  implicit val bigDecimalTEF: FloatTypedExpressionFactory[BigDecimal, TBigDecimal] with PrimitiveJdbcMapper[BigDecimal] = PrimitiveTypeSupport.bigDecimalTEF
+  implicit val optionBigDecimalTEF: FloatTypedExpressionFactory[Option[BigDecimal], TOptionBigDecimal] with DeOptionizer[BigDecimal, BigDecimal, TBigDecimal, Option[BigDecimal], TOptionBigDecimal] = PrimitiveTypeSupport.optionBigDecimalTEF
 
   type TE[A, B] = TypedExpression[A, B]
 
@@ -69,9 +69,9 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
 
   implicit def optionStringToTE(s: Option[String]): TE[Option[String], TOptionString] = optionStringTEF.create(s)
 
-  implicit def dateToTE(s: Date): TE[Date, TDate] = dateTEF.create(s)
+  implicit def dateToTE(s: JDate): TE[JDate, TDate] = dateTEF.create(s)
 
-  implicit def optionDateToTE(s: Option[Date]): TE[Option[Date], TOptionDate] = optionDateTEF.create(s)
+  implicit def optionDateToTE(s: Option[JDate]): TE[Option[JDate], TOptionDate] = optionDateTEF.create(s)
 
   implicit def timestampToTE(s: Timestamp): TE[Timestamp, TTimestamp] = timestampTEF.create(s)
 
@@ -150,23 +150,23 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
   implicit def queryOptionStringMeasuredToTE(q: Query[Measures[Option[String]]]): QVEN[Option[String], TOptionString] =
     new QVEN[Option[String], TOptionString](q.copy(asRoot = false, Nil).ast, optionStringTEF.createOutMapper)
 
-  implicit def queryDateToTE(q: Query[Date]): QVEN[Date, TDate] =
-    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateToTE(q: Query[JDate]): QVEN[JDate, TDate] =
+    new QVEN[JDate, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateToTE(q: Query[Option[Date]]): QVEN[Option[Date], TOptionDate] =
-    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateToTE(q: Query[Option[JDate]]): QVEN[Option[JDate], TOptionDate] =
+    new QVEN[Option[JDate], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
-  implicit def queryDateGroupedToTE(q: Query[Group[Date]]): QVEN[Date, TDate] =
-    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateGroupedToTE(q: Query[Group[JDate]]): QVEN[JDate, TDate] =
+    new QVEN[JDate, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateGroupedToTE(q: Query[Group[Option[Date]]]): QVEN[Option[Date], TOptionDate] =
-    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateGroupedToTE(q: Query[Group[Option[JDate]]]): QVEN[Option[JDate], TOptionDate] =
+    new QVEN[Option[JDate], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
-  implicit def queryDateMeasuredToTE(q: Query[Measures[Date]]): QVEN[Date, TDate] =
-    new QVEN[Date, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
+  implicit def queryDateMeasuredToTE(q: Query[Measures[JDate]]): QVEN[JDate, TDate] =
+    new QVEN[JDate, TDate](q.copy(asRoot = false, Nil).ast, dateTEF.createOutMapper)
 
-  implicit def queryOptionDateMeasuredToTE(q: Query[Measures[Option[Date]]]): QVEN[Option[Date], TOptionDate] =
-    new QVEN[Option[Date], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
+  implicit def queryOptionDateMeasuredToTE(q: Query[Measures[Option[JDate]]]): QVEN[Option[JDate], TOptionDate] =
+    new QVEN[Option[JDate], TOptionDate](q.copy(asRoot = false, Nil).ast, optionDateTEF.createOutMapper)
 
   implicit def queryTimestampToTE(q: Query[Timestamp]): QVEN[Timestamp, TTimestamp] =
     new QVEN[Timestamp, TTimestamp](q.copy(asRoot = false, Nil).ast, timestampTEF.createOutMapper)
