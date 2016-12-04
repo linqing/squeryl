@@ -14,13 +14,13 @@ trait QueryTester extends Matchers {
 
   var doNotExecute = false
 
-  def activateWorkbenchMode = {
+  def activateWorkbenchMode() = {
     logQueries = true
     dumpAst = true
     validateFirstAndExit = 0
   }
 
-  def loggerOn =
+  def loggerOn() =
     Session.currentSession.setLogger((s:String) => println(s))
 
   def log(queryName: Symbol, query:Query[_]) = {

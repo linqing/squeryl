@@ -51,10 +51,10 @@ abstract class SubQueryTests extends SchemaTester with RunTestsInsideTransaction
     val typeName = "mmmm"
     val relType = "owns"
 
-    val nameQuery = from(entity)(e => where(e.name === name)select(e))
+    val nameQuery = from(entity)(e => where(e.name === name)select e)
 
     val nameQueryId = from(nameQuery)(i => select(i.id))
-    val typeQuery = from(entityType)((eType) => where(eType.entType === typeName) select(eType.entityId))
+    val typeQuery = from(entityType)((eType) => where(eType.entType === typeName) select eType.entityId)
 
     val entEdges =
       from(entity, entityEdges)((e, edge) =>

@@ -29,7 +29,7 @@ class MusicDbObject extends KeyedEntity[Long] {
 case class Artist(name:String) extends MusicDbObject {
 
   // this returns a Query[Song] which is also an Iterable[Song] :
-  def songs: Query[Song] = from(MusicDb.songs)(s => where(s.artistId === id) select(s))
+  def songs: Query[Song] = from(MusicDb.songs)(s => where(s.artistId === id) select s)
 
   def newSong(title: String, filePath: Option[String], year: Int): Song =
     MusicDb.songs.insert(new Song(title, id, filePath, year))
@@ -65,7 +65,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def songsInPlaylistOrder: Query[Song] =
     from(playlistElements, songs)((ple, s) =>
       where(ple.playlistId === id and ple.songId === s.id)
-      select(s)
+      select s
       orderBy(ple.songNumber asc)
     )
 
@@ -78,7 +78,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
     val nextSongNumber: Int =
       from(playlistElements)(ple =>
         where(ple.playlistId === id)
-        compute(nvl(max(ple.songNumber), 0))
+        compute nvl(max(ple.songNumber), 0)
       )    
     
     playlistElements.insert(new PlaylistElement(nextSongNumber, id, s.id))
@@ -99,8 +99,8 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def _songCountByArtistId: Query[GroupWithMeasures[Long,Long]] =
     from(artists, songs)((a,s) =>
       where(a.id === s.artistId)
-      groupBy(a.id)
-      compute(count)
+      groupBy a.id
+      compute count
     )
 
   // Queries are nestable just as they would in SQL
@@ -122,7 +122,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def songsOf(artistId: Long): Query[Song] =
     from(playlistElements, songs)((ple,s) =>
       where(id === ple.playlistId and ple.songId === s.id and s.artistId === artistId)
-      select(s)
+      select s
     )
 }
 
@@ -142,7 +142,7 @@ object MusicDb extends Schema {
   val ratings: Table[Rating] = table[Rating]
 
   // drop (schema) is normaly protected... for safety, here we live dangerously !
-  override def drop: Unit = super.drop()
+  override def drop(): Unit = super.drop()
 }
 
 class TestData{
@@ -194,7 +194,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
     val songsFromThe60sInFunkAndLatinJazzPlaylist =
       from(songs)(s=>
         where(s.id in from(funkAndLatinJazz.songsInPlaylistOrder)(s2 => select(s2.id)))
-        select(s)
+        select s
       )
 
     val songIds =
@@ -205,7 +205,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
     // Nesting in From clause :
     from(funkAndLatinJazz.songsInPlaylistOrder)(s=>
       where(s.id === 123)
-      select(s)
+      select s
     )
     
     // Left Outer Join :

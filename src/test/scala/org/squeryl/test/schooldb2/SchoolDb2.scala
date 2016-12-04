@@ -104,10 +104,10 @@ class SchoolDb2 extends Schema {
 
 
   on(students)(s => declare(
-    s.firstName is(indexed),
-    s.lastName defaultsTo("!"),
+    s.firstName is indexed,
+    s.lastName defaultsTo "!",
     s.fullName is(unique, indexed),
-    columns(s.id, s.firstName, s.lastName) are(indexed)  
+    columns(s.id, s.firstName, s.lastName) are indexed
   ))
 
   val courses: Table[Course] = table[Course]
@@ -223,7 +223,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val q: Query[String] =
       from(subjects)(s =>
         where(s.name === "Philosophy")
-          select(&(from(subjects)(s2 => where(s2.name === s.name) select(s2.name))))
+          select &(from(subjects)(s2 => where(s2.name === s.name) select (s2.name)))
       )
 
     assertEquals(1, q.toList.length, "Could not find row")
@@ -235,9 +235,9 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val q: Query[String] =
       from(subjects)(s =>
         where(
-          s.name === from(subjects)(s2 => where(s2.name === "Philosophy") select(s2.name))
+          s.name === from(subjects)(s2 => where(s2.name === "Philosophy") select s2.name)
         )
-        select(s.name)
+        select s.name
       )
 
     assertEquals(1, q.toList.length, "Could not find row")
@@ -248,7 +248,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val comment = Comment("A single comment")
     entry.comments.associate(comment)
 
-    from(entry.comments)(c => where(c.id === comment.id) select(c))
+    from(entry.comments)(c => where(c.id === comment.id) select c)
   }
 
   test("UpdateWithCompositePK"){
@@ -383,7 +383,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val qA2 =
       from(courseAssignments)(ca =>
         where(ca.id ===(a.courseId, a.professorId))
-        select(ca)
+        select ca
       )
 
     _existsAndEquals(qA2.headOption, a)
@@ -467,12 +467,12 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
 
   test("InFromSet"){
     val set = Set("foo", "bar", "baz")
-    from(entries)(e => where(e.text.in(set))select(e)).toList
+    from(entries)(e => where(e.text.in(set))select e).toList
     passed('testInFromSet)
   }
   test("InFromSeq"){
     val set = Set("foo", "bar", "baz").toSeq
-    from(entries)(e => where(e.text.in(set))select(e)).toList
+    from(entries)(e => where(e.text.in(set))select e).toList
     passed('testInFromSeq)
   }
   
@@ -497,7 +497,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val belowOrEqualToAvg = 
       from(courseSubscriptions)(p =>
         where(p.grade lte from(courseSubscriptions)(p => compute(avg(p.grade))))
-        select(p)
+        select p
       ).toList
       
     assert(belowOrEqualToAvg.size == 1)
@@ -505,7 +505,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val belowAvg = 
       from(courseSubscriptions)(p =>
         where(p.grade lt from(courseSubscriptions)(p => compute(avg(p.grade))))
-        select(p)
+        select p
       ).toList
       
     assert(belowAvg.isEmpty)

@@ -18,10 +18,10 @@ abstract class SchemaTester extends DbTestBase {
 
     sessionCreator().foreach { _ =>
       transaction {
-        schema.drop
-        schema.create
+        schema.drop()
+        schema.create()
         try{
-          prePopulate
+          prePopulate()
         }catch{
           case e : Exception =>
             println(e.getMessage)
@@ -36,7 +36,7 @@ abstract class SchemaTester extends DbTestBase {
 
     sessionCreator().foreach { _ =>
       transaction {
-        schema.drop
+        schema.drop()
       }
     }
   }
@@ -46,7 +46,7 @@ abstract class DbTestBase extends FunSuite with BeforeAndAfterAll with BeforeAnd
   self: DBConnector =>
 
   def isIgnored(testName: String) =
-    sessionCreator().isEmpty || ignoredTests.exists(_ == testName)
+    sessionCreator().isEmpty || ignoredTests.contains(testName)
 
 
   def ignoredTests : List[String] = Nil

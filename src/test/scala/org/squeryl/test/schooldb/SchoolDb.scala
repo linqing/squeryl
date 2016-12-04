@@ -230,20 +230,20 @@ class SchoolDb extends Schema {
 //    oneToManyRelation(schools, schools).via((parent, child) => parent.id === child.parentSchoolId)
 
   on(schools)(s => declare(
-    s.id_field is (primaryKey),
+    s.id_field is primaryKey,
     s.name is(indexed("uniqueIndexName"), unique),
-    s.name defaultsTo("no name"),
-    columns(s.name, s.addressId) are(indexed),
+    s.name defaultsTo "no name",
+    columns(s.name, s.addressId) are indexed,
     s.parentSchoolId is(indexed, unique)
     //_.addressId is(autoIncremented) currently only supported on KeyedEntity.id ... ! :(
   ))
 
   on(professors)(p => declare(
-    p.lastName is(named("theLastName"))
+    p.lastName is named("theLastName")
   ))
   
   on(professors)(p => declare(
-    p.yearlySalary is(dbType("real"))
+    p.yearlySalary is dbType("real")
   ))
 
   on(stringKeyedEntities)(e => declare(
@@ -269,7 +269,7 @@ class SchoolDb extends Schema {
   }
 
   def studentTransform(s: Student): Student = {
-     new Student(s.name, s.lastName, s.age, ((s.gender % 2) + 1), s.addressId, s.isMultilingual)
+     new Student(s.name, s.lastName, s.age, (s.gender % 2) + 1, s.addressId, s.isMultilingual)
   }
 
   val beforeInsertsOfPerson = new ArrayBuffer[Person]
@@ -373,7 +373,7 @@ abstract class FullOuterJoinTests extends SchoolDbTestBase{
     val leftOuterJoinStudentAddresses =
       join(addresses.leftOuter, students)((a,s) =>
         select((s,a))
-        orderBy(s.id)
+        orderBy s.id
         on(s.addressId === a.map(_.id))
       )
 
@@ -415,7 +415,7 @@ abstract class CommonTableExpressions extends SchoolDbTestBase {
   test("commonTableExpressions") {
     val qStudents = from(students) ((s) =>
       where(s.name === "Xiao")
-      select(s))
+      select s)
     val qAddresses = from(addresses)(a => select(a))
 
     val q =
@@ -426,10 +426,10 @@ abstract class CommonTableExpressions extends SchoolDbTestBase {
             where(s2.name === "Xiao" and exists(
               from(qStudents)(s4 =>
                 where (s4.name === "Xiao")
-                select (s4))))
-            select(s2)
+                select s4)))
+            select s2
             on(s2.name === s3.name))) and s.name === "Xiao")
-        select(s))
+        select s)
 
     /*
     val q =
@@ -454,7 +454,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
 
   test("cast"){
     val q =
-      from(addresses)(a => where(a.id === "1".cast[Int, TInt]("int4")) select(a))
+      from(addresses)(a => where(a.id === "1".cast[Int, TInt]("int4")) select a)
     assert(q.toList.size == 1)
   }
 
@@ -477,9 +477,9 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       from(courses)(c =>
         where (          
           //new org.squeryl.dsl.ast.BinaryOperatorNodeLogicalBoolean(1, from(courseSubscriptions)(cs => compute(countDistinct(cs.courseId))).ast, "=")
-          1 === from(courseSubscriptions)(cs => where(c.id === cs.courseId) compute(countDistinct(cs.courseId)))
+          1 === from(courseSubscriptions)(cs => where(c.id === cs.courseId) compute countDistinct(cs.courseId))
         )
-        select(c)
+        select c
      ).toList
      
      assert(q.size == 4)
@@ -518,7 +518,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       compute(avg(s.age))
     )
 
-  def avgStudentAgeFunky(): Query[Measures[Product4[Option[Float], Option[Float], Option[Float], Long]]] =
+  def avgStudentAgeFunky() =
     from(students)(s =>
       compute(avg(s.age), avg(s.age) + 3, avg(s.age) / count, count + 6)
     )
@@ -526,7 +526,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   def addressesOfStudentsOlderThan24: Query[Option[String]] =
     from(students, addresses)((s,a) =>
       where((24 lt s.age) and (24 lt s.age))
-      select(&(a.numberz || " " || a.streetName || " " || a.appNumber))
+      select &(a.numberz || " " || a.streetName || " " || a.appNumber)
     )
 
   test("DeepNest1"){
@@ -534,7 +534,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
 
     val q = from(professors)(p0 => select(p0))
 
-    val q1 = from(q)(p => where(p.lastName === tournesol.lastName) select(p))
+    val q1 = from(q)(p => where(p.lastName === tournesol.lastName) select p)
 
     val profTournesol = q1.single
 
@@ -570,7 +570,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
 
     val q = from(from(from(professors)(p0 => select(p0)))(p1 => select(p1)))(p2 => select(p2))
 
-    val q1 = from(q)(p => where(p.lastName === tournesol.lastName) select(p))
+    val q1 = from(q)(p => where(p.lastName === tournesol.lastName) select p)
 
     val profTournesol = q1.single
 
@@ -589,7 +589,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val testInstance = sharedTestInstance; import testInstance._
 
     val q =
-      from(addresses)(a => where(a.appNumberSuffix === Some("A")) select(a))
+      from(addresses)(a => where(a.appNumberSuffix === Some("A")) select a)
 
     val h = q.head
 
@@ -723,7 +723,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val r =
       from(students)(s=>
         where(s.name in Seq("Xiao", "Georgi"))
-        select(s.id)
+        select s.id
       ).toSet
 
     assertEquals(Set(xiao.id,georgi.id), r, 'testInOpWithStringList)
@@ -757,7 +757,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     transformedStudents.clear
 
     val s1 = students.insert(new Student("z1", "z2", Some(4), 1, Some(4), Some(true)))
-    val sOpt = from(students)(s => where(s.name === "z1" and s.lastName === "z2") select(s)).headOption
+    val sOpt = from(students)(s => where(s.name === "z1" and s.lastName === "z2") select s).headOption
 
     assert(sOpt.isDefined && sOpt.exists(_.gender == 2))
     assert(beforeInsertsOfPerson.contains(s1))
@@ -844,8 +844,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q =
       from(students)(s=>
         where(s.name like "G%")
-        select(s.id)
-        orderBy(s.name)
+        select s.id
+        orderBy s.name
       )
 
     validateQuery('testLikeOperator, q, identity[Int], List(gaitan.id,georgi.id,gontran.id))
@@ -857,8 +857,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q =
       from(students)(s=>
         where(s.name like "G%")
-        select(s.id)
-        orderBy(s.name)
+        select s.id
+        orderBy s.name
       )
       
     val shouldBeRight =
@@ -874,8 +874,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q2 =
       from(students)(s=>
         where(s.name like "Gontran")
-        select(s.id)
-        orderBy(s.name)
+        select s.id
+        orderBy s.name
       )
     
     q2.singleOption should equal(Some(gontran.id))
@@ -888,7 +888,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
           //TODO: REFACTOR Z
           s.isMultilingual === (None :Option[Boolean])
         })
-        select(s.id)
+        select s.id
       )
     
     val z2 =
@@ -897,7 +897,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
           val a = s.isMultilingual.isNull
           a
           })
-        select(s.id)
+        select s.id
       )
                 
       val r1 = z1.toSet
@@ -1019,8 +1019,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val mandarinAndCounterpointCourses =
       from(courses)(c=>
         where(c.startDate > jan2010 and c.startDate < mar2010)
-        select(c)
-        orderBy(List[ExpressionNode](c.startDate.asc, c.id.asc))
+        select c
+        orderBy List[ExpressionNode](c.startDate.asc, c.id.asc)
       ).toList
 
     val expected = List(counterpoint.id,  mandarin.id)
@@ -1048,21 +1048,21 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val result1 =
       from(courses)(c=>
         where(c.finalExamDate >= Option(jan2008) and c.finalExamDate.isNotNull)
-        select(c)
+        select c
         orderBy(c.finalExamDate, c.id asc)
       ).toList.map(c=>c.id)
 
     val result2 =
       from(courses)(c=>
         where(c.finalExamDate <= Some(jan2009))
-        select(c)
+        select c
         orderBy(c.finalExamDate, c.id asc)
       ).toList.map(c=>c.id)
 
     val result3 =
       from(courses)(c=>
         where(c.finalExamDate >= Some(feb2009))
-        select(c)
+        select c
         orderBy(c.finalExamDate, c.id asc)
       ).toList.map(c=>c.id)
 
@@ -1091,7 +1091,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val result =
       from(courses)(c=>
         where(nvl(c.meaninglessLongOption, 3) <> 1234 and nvl(c.meaninglessLongOption, 3) === 3)
-        select(&(nvl(c.meaninglessLongOption, 5)))
+        select &(nvl(c.meaninglessLongOption, 5))
       ).toList : List[Long]
 
     val expected = List(5,5,5)
@@ -1247,7 +1247,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q =
       from(courses)(c =>
         select((c.id, c.meaninglessLong, c.meaninglessLongOption))
-        orderBy(c.id)
+        orderBy c.id
       )
 
     val b4 = q.toList
@@ -1287,7 +1287,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   test("PartialUpdateWithInclusionOperator ") {
 
     update(courses)(c =>
-      where(c.id in from(courses)(c0=> where(c0.id lt -1) select(c0.id)))
+      where(c.id in from(courses)(c0=> where(c0.id lt -1) select c0.id))
       set(c.meaninglessLong := 0L,
           c.meaninglessLongOption :=  c.meaninglessLongOption - 456L)
     )
@@ -1335,11 +1335,11 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
 
     professors.where(p => p.id === tournesol.id).single.yearlySalary
 
-    val expected:Float = from(professors)(p0=> where(tournesol.id === p0.id or p0.id === zarnitsyn.id) compute(nvl(avg(p0.yearlySalary), 123)))
+    val expected:Float = from(professors)(p0=> where(tournesol.id === p0.id or p0.id === zarnitsyn.id) compute nvl(avg(p0.yearlySalary), 123))
 
     update(professors)(p =>
       where(p.id === tournesol.id)
-      set(p.yearlySalary := from(professors)(p0=> where(p.id === p0.id or p0.id === zarnitsyn.id) compute(nvl(avg(p0.yearlySalary), 123))))
+      set(p.yearlySalary := from(professors)(p0=> where(p.id === p0.id or p0.id === zarnitsyn.id) compute nvl(avg(p0.yearlySalary), 123)))
     )
 
     val after = professors.where(p => p.id === tournesol.id).single.yearlySalary
@@ -1381,7 +1381,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val expectedVersionNumber = ht.occVersionNumberZ + 1
 
     val actualVersionNumber =
-      from(courses)(c => where(c.id === heatTransfer.id) select(c)).single.occVersionNumberZ
+      from(courses)(c => where(c.id === heatTransfer.id) select c).single.occVersionNumberZ
 
     assertEquals(expectedVersionNumber, actualVersionNumber, "optimistic CC failed")
 
@@ -1517,7 +1517,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   }
 
   test("YieldInspectionResidue") {
-    from(students)(s => where(s.lastName === "Jimbao Gallois") select(s.name)).single
+    from(students)(s => where(s.lastName === "Jimbao Gallois") select s.name).single
 
     val r = FieldReferenceLinker.takeLastAccessedFieldReference
 
@@ -1530,7 +1530,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val z0 =
       from(students)(s2 =>
         where(s2.age gt 0)
-        compute(min(s2.age))
+        compute min(s2.age)
       )
 
     val q2 = (z0 : Query[Measures[Option[Int]]] ):  Query[Option[Int]]
@@ -1538,7 +1538,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q3 =
       from(students)(s =>
         where(s.age.isNotNull and s.age.in(q2))
-        select(s)
+        select s
       )
 
     val res = q3.single
@@ -1552,7 +1552,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q =
       from(students)(s =>
         where(s.id.isNull.inhibitWhen(true)) // should return all students
-        select(s)
+        select s
       )
 
     val allStuents = students.allRows.map(_.id).toSet
@@ -1564,7 +1564,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val q2 =
       from(students)(s =>
         where(s.id.isNull.inhibitWhen(false)) // should return all students
-        select(s)
+        select s
       )
 
     assertEquals(0, q2.size, 'testIsNotNullWithInhibition)
@@ -1589,7 +1589,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val leftOuterJoinStudentAddresses =
       join(students, addresses.leftOuter)((s,a) =>
         select((s,a))
-        orderBy(s.id)
+        orderBy s.id
         on(s.addressId === a.map(_.id))
       )
 
@@ -1625,7 +1625,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val leftOuterJoinStudentAddresses =
       join(students, addresses.leftOuter,addresses.leftOuter)((s,a,a2) =>
         select((s,a,a2))
-        orderBy(s.id)
+        orderBy s.id
         on(s.addressId === a.map(_.id), s.addressId === a2.map(_.id))
       )
 
@@ -1721,7 +1721,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       tests.insert(List(YieldInspectionTest(1, 100), YieldInspectionTest(1,500), YieldInspectionTest(2,600)))
       others.insert(List(YieldInspectionAnother(1, "One", 1), YieldInspectionAnother(2, "Two", 2)))
 
-      val group = from(tests)(t=> groupBy(t.id) compute(sum(t.num)))
+      val group = from(tests)(t=> groupBy(t.id) compute sum(t.num))
 
       join(group, others)((g, o)=>
         select(g.measures.get, o)
@@ -1732,8 +1732,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   test("Exists")  {
     val studentsWithAnAddress =
       from(students)(s =>
-        where(exists(from(addresses)((a) => where(s.addressId === a.id) select(a.id))))
-          select(s)
+        where(exists(from(addresses)((a) => where(s.addressId === a.id) select a.id)))
+          select s
       )
 
     val res = for (s <- studentsWithAnAddress) yield s.name
@@ -1747,8 +1747,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   test("NotExists")  {
     val studentsWithNoAddress =
       from(students)(s =>
-        where(notExists(from(addresses)((a) => where(s.addressId === a.id) select(a.id))))
-        select(s)
+        where(notExists(from(addresses)((a) => where(s.addressId === a.id) select a.id)))
+        select s
       )
     val res = for (s <- studentsWithNoAddress) yield s.name
     val expected = List("Gaitan")
@@ -1765,8 +1765,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       from(qStudentsFromStudents)(s =>
         where(exists(from(addresses)((a) =>
           where(s.addressId === a.id)
-          select(a.id))))
-        select(s))
+          select a.id)))
+        select s)
 
     val res = for (s <- studentsWithAnAddress) yield s.name
     val expected = List("Xiao", "Georgi", "Pratap", "Gontran")
@@ -1783,11 +1783,11 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       from(qStudentsFromStudents)(s =>
         where(exists(from(addresses)((a) =>
             where(s.addressId in
-              (from(addresses) ( (a2) =>
+              from(addresses)((a2) =>
                 where(a2.id === a.id and s.addressId === a2.id)
-                select(a2.id))))
-            select(a.id))))
-          select(s)
+                  select (a2.id)))
+            select a.id)))
+          select s
       )
 
     val res = for (s <- studentsWithAnAddress) yield s.name
@@ -1804,13 +1804,13 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     val studentsWithAnAddress =
       from(qStudents)(s =>
         where(exists(from(addresses)((a) =>
-          where(s.addressId === a.id) select(a))))
-          select(s)
+          where(s.addressId === a.id) select a)))
+          select s
       )
     val qAStudentIfHeHasAnAddress =
       from(studentsWithAnAddress)(s =>
         where(s.name === "Xiao")
-        select(s)
+        select s
       )
 
     val res = for (s <- qAStudentIfHeHasAnAddress) yield s.name
@@ -1826,7 +1826,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     update(students)(s => setAll(s.age := Some(30)))
 
     val expected:Long = from(students)(s => compute(count))
-    val is:Long = from(students)(s => where(s.age === 30)compute(count))
+    val is:Long = from(students)(s => where(s.age === 30)compute count)
 
     assert(expected == is, "expected :\n " + expected + "\ngot : \n " + is)
   }
@@ -1843,10 +1843,10 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
             where(s2.name === "Xiao" and exists(
               from(qStudents)(s4 =>
                 where (s4.name === "Xiao")
-                select (s4))))
-            select(s2)
+                select s4)))
+            select s2
             on(s2.name === s3.name))) and s.name === "Xiao")
-        select(s))
+        select s)
 
     val res = for (s <- q) yield s.name
     val expected = List("Xiao")

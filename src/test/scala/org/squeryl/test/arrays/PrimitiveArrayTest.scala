@@ -87,7 +87,7 @@ object PrimitiveArraySchema extends Schema {
 
   val swimmers: Table[Swimmer] = table[Swimmer]("swimmer")
 
-  override def drop: Unit = super.drop()
+  override def drop(): Unit = super.drop()
 }
 
 class Swimmer(val id: Int, val lap_times: Array[Double], val scores: Array[Int], val orgids: Array[Long], val tags: Array[String])

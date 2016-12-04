@@ -99,7 +99,7 @@ object LeftJoinSchema extends Schema {
 
  val ordrs: Table[Ordr] = table[Ordr]("Ordr")
 
- override def drop: Unit = super.drop()
+ override def drop(): Unit = super.drop()
 }
 
 class Item(val id: Int, val name: String)

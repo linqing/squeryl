@@ -42,7 +42,7 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
   def simpleSelect: Query[Patient] =
     from(patients)(p =>
       where(p.age > 70)
-      select(p)
+      select p
     )
 
   test("Queries"){
@@ -86,7 +86,7 @@ class HospitalDb extends Schema {
       oneToManyRelation(patients, patientInfo).
       via((p,pi) => p.id === pi.patientId)
   
-  override def drop: Unit = super.drop()
+  override def drop(): Unit = super.drop()
 }
 
 class Patient(var firstName: FirstName, var age: Option[Age], var weight: Option[WeightInKilograms]) extends KeyedEntity[IntField] {
