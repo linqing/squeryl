@@ -17,7 +17,7 @@ package org.squeryl
 
 
 import java.sql
-import java.sql.{Date, Timestamp}
+import java.sql.{Date => SqlDate, Timestamp}
 import java.util.{UUID, Date => JDate}
 
 import org.squeryl.dsl._
@@ -39,7 +39,7 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
   implicit val dateTEF: TypedExpressionFactory[JDate, TDate] with PrimitiveJdbcMapper[JDate] = PrimitiveTypeSupport.dateTEF
   implicit val optionDateTEF: TypedExpressionFactory[Option[JDate], TOptionDate] with DeOptionizer[JDate, JDate, TDate, Option[JDate], TOptionDate] = PrimitiveTypeSupport.optionDateTEF
   implicit val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = PrimitiveTypeSupport.sqlDateTEF
-  implicit val optionSqlDateTEF: TypedExpressionFactory[Option[Date], TOptionDate] with DeOptionizer[Date, Date, TDate, Option[Date], TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
+  implicit val optionSqlDateTEF: TypedExpressionFactory[Option[SqlDate], TOptionDate] with DeOptionizer[SqlDate, SqlDate, TDate, Option[SqlDate], TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
   implicit val timestampTEF: TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] = PrimitiveTypeSupport.timestampTEF
   implicit val optionTimestampTEF: TypedExpressionFactory[Option[Timestamp], TOptionTimestamp] with DeOptionizer[Timestamp, Timestamp, TTimestamp, Option[Timestamp], TOptionTimestamp] = PrimitiveTypeSupport.optionTimestampTEF
   implicit val doubleArrayTEF: ArrayTEF[Double, TDoubleArray] = PrimitiveTypeSupport.doubleArrayTEF
