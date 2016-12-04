@@ -233,7 +233,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
             new EqualityExpression(InternalFieldMapper.intTEF.createConstant(1), InternalFieldMapper.intTEF.createConstant(1))
           })
 
-          fields getOrElse (internals.Utils.throwError("No PK fields found"))
+          fields getOrElse internals.Utils.throwError("No PK fields found")
         }
       )
 
@@ -295,7 +295,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
     import dsl._
     val q = from(this)(a => dsl.where {
       FieldReferenceLinker.createEqualityExpressionWithLastAccessedFieldReferenceAndConstant(ked.getId(a), k, toCanLookup(k))
-    } select (a))
+    } select a)
 
     lazy val z = q.headOption
 

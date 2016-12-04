@@ -112,8 +112,8 @@ object StatsSchema extends Schema {
       .page(0, topN)
 
   on(statements)(s => declare(
-    s.sql is (dbType("clob")),
-    s.definitionOrCallSite is (dbType("varchar(512)"))
+    s.sql is dbType("clob"),
+    s.definitionOrCallSite is dbType("varchar(512)")
   ))
 
   def recordStatementInvocation(sie: StatementInvocationEvent): String = {
@@ -147,8 +147,8 @@ object StatsSchema extends Schema {
         val q =
           from(statements)(st =>
             where(st.hash === s.hash)
-              select (st)
-              orderBy (st.statementHashCollisionNumber)
+              select st
+              orderBy st.statementHashCollisionNumber
           )
 
         var lastCollisionNum = -1

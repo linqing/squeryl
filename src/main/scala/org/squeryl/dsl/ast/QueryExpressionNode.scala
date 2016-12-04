@@ -84,7 +84,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       case None => throw new IllegalStateException("method cannot be called before initialization")
       case Some(p: Product) =>
         if (p.getClass.getName.startsWith("scala.Tuple")) {
-          val z = (for (i <- 0 to (p.productArity - 1)) yield p.productElement(i))
+          val z = for (i <- 0 to (p.productArity - 1)) yield p.productElement(i)
           !z.exists(o => _isPrimitiveType(o.asInstanceOf[AnyRef]))
         }
         else
@@ -222,7 +222,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def doWrite(sw: StatementWriter): Unit = {
     def writeCompleteQuery() = {
       val isNotRoot = parent.isDefined
-      val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
+      val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse false
 
       if ((isNotRoot && !isContainedInUnion) || hasUnionQueryOptions) {
         sw.write("(")

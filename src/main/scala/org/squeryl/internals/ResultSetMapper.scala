@@ -139,7 +139,7 @@ class ColumnToTupleMapper(val outMappers: Array[OutMapper[_]]) {
     val size = outMappers.length
     val m = outMappers
     val res = size match {
-      case 1 => (m(0).map(rs))
+      case 1 => m(0).map(rs)
       case 2 => (m(0).map(rs), m(1).map(rs))
       case 3 => (m(0).map(rs), m(1).map(rs), m(2).map(rs))
       case 4 => (m(0).map(rs), m(1).map(rs), m(2).map(rs), m(3).map(rs))

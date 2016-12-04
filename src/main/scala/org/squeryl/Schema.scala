@@ -440,7 +440,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       case caa: ColumnAttributeAssignment =>
 
         for (ca <- caa.columnAttributes)
-          (caa.left._addColumnAttribute(ca))
+          caa.left._addColumnAttribute(ca)
 
         //don't allow a KeyedEntity.id field to not have a uniqueness constraint :
         if (ca.isIdFieldOfKeyedEntityWithoutUniquenessConstraint)
@@ -470,7 +470,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     for (ca <- colAss) ca match {
       case cga: CompositeKeyAttributeAssignment =>
       case caa: ColumnAttributeAssignment =>
-        for (ca <- caa.columnAttributes if ca.isInstanceOf[AutoIncremented] && !(caa.left.isIdFieldOfKeyedEntity))
+        for (ca <- caa.columnAttributes if ca.isInstanceOf[AutoIncremented] && !caa.left.isIdFieldOfKeyedEntity)
           org.squeryl.internals.Utils.throwError("Field " + caa.left.nameOfProperty + " of table " + table.name +
             " is declared as autoIncremented, auto increment is currently only supported on KeyedEntity[A].id")
       case dva: Any =>
@@ -612,8 +612,8 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   class ActiveRecord[A](a: A, queryDsl: QueryDsl, m: Manifest[A]) {
 
     private def _performAction(action: (Table[A]) => Unit) =
-      _tableTypes get (m.runtimeClass) map { table: Table[_] =>
-        queryDsl inTransaction (action(table.asInstanceOf[Table[A]]))
+      _tableTypes get m.runtimeClass map { table: Table[_] =>
+        queryDsl inTransaction action(table.asInstanceOf[Table[A]])
       }
 
     /**

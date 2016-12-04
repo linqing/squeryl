@@ -76,7 +76,7 @@ object Utils {
     a => {
       val res = f(a)
       g(res)
-      (new DummyQueryElements(None)).select(0)
+      new DummyQueryElements(None).select(0)
     },
     true,
     Nil)
@@ -84,7 +84,7 @@ object Utils {
   private class DummyQuery4WhereClause[A, B](q: Queryable[A], whereClause: A => LogicalBoolean) extends Query1[A, Int](
     q,
     a => {
-      (new DummyQueryElements(Some(() => whereClause(a)))).select(0)
+      new DummyQueryElements(Some(() => whereClause(a))).select(0)
     },
     true,
     Nil)

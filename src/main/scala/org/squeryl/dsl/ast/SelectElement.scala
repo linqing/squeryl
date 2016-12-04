@@ -366,7 +366,7 @@ class ExportedSelectElement
 
   private def innerTarget: Option[SelectElement] =
     if (parent.isEmpty)
-      return None
+      None
     else {
       val parentOfThis = parent.get.asInstanceOf[QueryExpressionElements]
 

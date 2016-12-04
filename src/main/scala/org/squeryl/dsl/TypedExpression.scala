@@ -252,7 +252,7 @@ class TypedExpressionConversion[A1, T1](val e: ExpressionNode, bf: TypedExpressi
 
   override def inhibited: Boolean = e.inhibited
 
-  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite(sw)
 
   override def children: List[ExpressionNode] = e.children
 }
@@ -379,7 +379,7 @@ trait DeOptionizer[P1, A1, T1, A2 >: Option[A1] <: Option[A1], T2] extends JdbcM
   def convertFromJdbc(v: P1): A2 = Option(deOptionizer.convertFromJdbc(v))
 
   def convertToJdbc(v: A2): P1 =
-    v map (p => deOptionizer.convertToJdbc(p)) getOrElse (null.asInstanceOf[P1])
+    v map (p => deOptionizer.convertToJdbc(p)) getOrElse null.asInstanceOf[P1]
 
   def extractNativeJdbcValue(rs: ResultSet, i: Int): P1 = deOptionizer.extractNativeJdbcValue(rs, i)
 

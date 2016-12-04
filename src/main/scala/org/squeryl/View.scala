@@ -98,7 +98,7 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
 
     val q = from(this)(a => dsl.where {
       FieldReferenceLinker.createEqualityExpressionWithLastAccessedFieldReferenceAndConstant(ked.getId(a), k, toCanLookup(k))
-    } select (a))
+    } select a)
 
     val it = q.iterator
 

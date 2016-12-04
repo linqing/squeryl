@@ -658,7 +658,7 @@ trait QueryDsl
 
     def left(leftSide: O): OneToMany[M] = {
 
-      val q = from(rightTable)(m => where(f(leftSide, m)) select (m))
+      val q = from(rightTable)(m => where(f(leftSide, m)) select m)
 
       new DelegateQuery(q) with OneToMany[M] {
 
@@ -683,7 +683,7 @@ trait QueryDsl
 
     def right(rightSide: M): ManyToOne[O] = {
 
-      val q = from(leftTable)(o => where(f(o, rightSide)) select (o))
+      val q = from(leftTable)(o => where(f(o, rightSide)) select o)
 
       new DelegateQuery(q) with ManyToOne[O] {
 
