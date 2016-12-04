@@ -88,6 +88,7 @@ object StatsSchema extends Schema {
 
   val statementInvocations: Table[StatementInvocation] = table[StatementInvocation]
 
+  //noinspection TypeAnnotation
   def invocationStats =
     from(statementInvocations)((si) =>
       groupBy(si.statementHash, si.statementHashCollisionNumber)

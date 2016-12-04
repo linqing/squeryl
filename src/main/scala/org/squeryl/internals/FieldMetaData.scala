@@ -32,6 +32,8 @@ import java.lang.reflect.Member
 import org.squeryl.dsl.ast.ConstantTypedExpression
 import org.squeryl.customtypes.CustomType
 
+import scala.collection.mutable
+
 class FieldMetaData(
                      val parentMetaData: PosoMetaData[_],
                      val nameOfProperty: String,
@@ -75,7 +77,7 @@ class FieldMetaData(
     * This field is mutable only by the Schema trait, and only during the Schema instantiation,
     * so it can safely be considered immutable (read only) by the columnAttributes accessor
     */
-  private val _columnAttributes = new HashSet[ColumnAttribute]
+  private val _columnAttributes = new mutable.HashSet[ColumnAttribute]
 
 
   private[squeryl] def _clearColumnAttributes() = {
@@ -89,7 +91,7 @@ class FieldMetaData(
     * In some circumstances (like in the test suite) a Schema instance must run on multiple database types,
     * this Map keeps the sequence names 'per schema'
     */
-  private val _sequenceNamePerDBAdapter = new HashMap[Class[_], String]
+  private val _sequenceNamePerDBAdapter = new mutable.HashMap[Class[_], String]
 
   def sequenceName: String = {
 

@@ -15,6 +15,7 @@ abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[ScalaArray[P], TE]
 
   val defaultColumnLength = 1
 
+  //noinspection TypeAnnotation
   def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getArray(i)
 
   def convertToJdbc(v: ScalaArray[P]): java.sql.Array = {

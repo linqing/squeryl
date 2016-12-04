@@ -172,6 +172,7 @@ trait FieldMapper {
 
         def convertToJdbc(v: A): Int = v.id
 
+        //noinspection TypeAnnotation
         def convertFromJdbc(v: Int) = {
           enu.values.find(_.id == v).getOrElse(DummyEnum.DummyEnumerationValue) // JDBC has no concept of null value for primitive types (ex. Int)
           // at this level, we mimic this JDBC flaw (the Option / None based on jdbc.wasNull will get sorted out by optionEnumValueTEF)

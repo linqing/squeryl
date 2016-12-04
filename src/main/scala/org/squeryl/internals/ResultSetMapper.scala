@@ -62,6 +62,7 @@ trait OutMapper[T] extends ResultSetUtils {
 
   var isActive = false
 
+  //noinspection TypeAnnotation
   def jdbcClass =
     sample match {
       case Some(x: AnyRef) => x.getClass
