@@ -10,11 +10,11 @@ class Foo(val value: String) extends KeyedEntity[Long] {
 }
 
 object FooSchema extends Schema {
-  val foos = table[Foo]
+  val foos: Table[Foo] = table[Foo]
 
-  def reset() = {
-    drop // its protected for some reason
-    create
+  def reset(): Unit = {
+    drop() // its protected for some reason
+    create()
   }
 }
 
@@ -23,7 +23,7 @@ abstract class TransactionTests extends DbTestBase {
 
   def throwExc(except: Boolean): Int = {
     if(except) throw new Exception()
-    return 1
+    1
   }
 
   def doSomething(except: Boolean) : Int = {
@@ -41,7 +41,7 @@ abstract class TransactionTests extends DbTestBase {
 
   test("No exception in transaction"){
     transaction {
-      FooSchema.reset
+      FooSchema.reset()
     }
     transaction {
       FooSchema.foos.insert(new Foo("test"))
@@ -51,7 +51,7 @@ abstract class TransactionTests extends DbTestBase {
         doSomething(true)
       }
       catch {
-        case e: Exception => {}
+        case e: Exception =>
       }
 
       // fails with "no session exception"
@@ -61,7 +61,7 @@ abstract class TransactionTests extends DbTestBase {
 
   test("Returning in transaction"){
     transaction {
-      FooSchema.reset
+      FooSchema.reset()
     }
     transaction {
       FooSchema.foos.insert(new Foo("test"))
@@ -75,7 +75,7 @@ abstract class TransactionTests extends DbTestBase {
 
   test("Returning out of transaction"){
     transaction {
-      FooSchema.reset
+      FooSchema.reset()
     }
     transaction {
       FooSchema.foos.insert(new Foo("test"))
@@ -91,7 +91,7 @@ abstract class TransactionTests extends DbTestBase {
   
   test("Returning inside transaction block"){
     transaction {
-      FooSchema.reset
+      FooSchema.reset()
     }
     returnInTransaction
     transaction{

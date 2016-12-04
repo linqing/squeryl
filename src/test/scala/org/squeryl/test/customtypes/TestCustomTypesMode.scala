@@ -15,12 +15,12 @@ package org.squeryl.test.customtypes
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************** */
-import org.squeryl.{KeyedEntity, Schema}
+import org.squeryl.{KeyedEntity, Query, Schema, Table}
 import org.squeryl.framework._
 import org.squeryl.customtypes._
-
 import CustomTypesMode._
 import org.scalatest.Matchers
+import org.squeryl.dsl.{ManyToOne, OneToMany}
 
 
 abstract class TestCustomTypesMode extends SchemaTester with Matchers with QueryTester with RunTestsInsideTransaction {
@@ -30,7 +30,7 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
 
   import schema._
 
-  var sharedTestObjects : TestData = null
+  var sharedTestObjects : TestData = _
 
   override def prePopulate(){
     sharedTestObjects = new TestData(schema)
@@ -39,7 +39,7 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
 
   import CustomTypesMode._
 
-  def simpleSelect =
+  def simpleSelect: Query[Patient] =
     from(patients)(p =>
       where(p.age > 70)
       select(p)
@@ -70,32 +70,32 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
 }
 
 class TestData(schema : HospitalDb){
-  val joseCuervo = schema.patients.insert(new Patient(new FirstName("Jose"), Some(new Age(76)), Some(new WeightInKilograms(290.134))))
-  val raoulEspinoza = schema.patients.insert(new Patient(new FirstName("Raoul"), Some(new Age(32)), None))
+  val joseCuervo: Patient = schema.patients.insert(new Patient(new FirstName("Jose"), Some(new Age(76)), Some(new WeightInKilograms(290.134))))
+  val raoulEspinoza: Patient = schema.patients.insert(new Patient(new FirstName("Raoul"), Some(new Age(32)), None))
 }
 
 object HospitalDb extends HospitalDb
 
 class HospitalDb extends Schema {
   
-  val patients = table[Patient]
+  val patients: Table[Patient] = table[Patient]
 
-  val patientInfo = table[PatientInfo]
+  val patientInfo: Table[PatientInfo] = table[PatientInfo]
 
-  val patienttoPatientInfo =
+  val patienttoPatientInfo: _root_.org.squeryl.customtypes.CustomTypesMode.OneToManyRelationImpl[Patient, PatientInfo] =
       oneToManyRelation(patients, patientInfo).
       via((p,pi) => p.id === pi.patientId)
   
-  override def drop = super.drop
+  override def drop: Unit = super.drop()
 }
 
 class Patient(var firstName: FirstName, var age: Option[Age], var weight: Option[WeightInKilograms]) extends KeyedEntity[IntField] {
 
   def this() = this(null, Some(new Age(1)),Some(new WeightInKilograms(1)))
 
-  var id: IntField = null
+  var id: IntField = _
 
-  lazy val patientInfo = HospitalDb.patienttoPatientInfo.left(this)
+  lazy val patientInfo: OneToMany[PatientInfo] = HospitalDb.patienttoPatientInfo.left(this)
 }
 
 class PatientInfo(val info: Info) extends KeyedEntity[IntField] {
@@ -106,7 +106,7 @@ class PatientInfo(val info: Info) extends KeyedEntity[IntField] {
 
   val id: IntField = null
 
-  lazy val patient = HospitalDb.patienttoPatientInfo.right(this)
+  lazy val patient: ManyToOne[Patient] = HospitalDb.patienttoPatientInfo.right(this)
 }
 
 /**
@@ -127,27 +127,27 @@ class Age(v: Int) extends IntField(v) with Domain[Int] {
   // secondary constructor to show  #93
   def this(s: String) = this(s.toInt)
   
-  def validate(a: Int) = assert(a > 0, "age must be positive, got " + a)
+  def validate(a: Int): Unit = assert(a > 0, "age must be positive, got " + a)
   def label = "age"
 }
 
 class FirstName(v: String) extends StringField(v) with Domain[String] {
-  def validate(s: String) = assert(s.length <= 50, "first name is waaaay to long : " + s)
+  def validate(s: String): Unit = assert(s.length <= 50, "first name is waaaay to long : " + s)
   def label = "first name"
 }
 
 class WeightInKilograms(v: Double) extends DoubleField(v) with Domain[Double] {
-  def validate(d:Double) = assert(d > 0, "weight must be positive, got " + d) 
+  def validate(d:Double): Unit = assert(d > 0, "weight must be positive, got " + d)
   def label = "weight (in kilograms)"
 }
 
 class ReasonOfVisit(v: String) extends StringField(v) with Domain[String] {
-  def validate(s:String) = assert(s.length > 1, "invalid visit reason : " + s)
+  def validate(s:String): Unit = assert(s.length > 1, "invalid visit reason : " + s)
   def label = "reason of visit"
 }
 
 class Info(v: String) extends StringField(v) with Domain[String] {
-  def validate(s:String) = {}
+  def validate(s:String): Unit = {}
   def label = "info"
 }
 

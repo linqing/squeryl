@@ -1,5 +1,6 @@
 package org.squeryl.test
 
+import org.squeryl.Table
 import org.squeryl.framework._
 
 abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction {
@@ -11,7 +12,7 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
 
  import LeftJoinSchema._
 
- override def prePopulate {
+ override def prePopulate() {
 
    months.insert(new Month(1, "Jan"))
    months.insert(new Month(2, "Feb"))
@@ -36,8 +37,8 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
  test("return the correct results if an inner join is used"){
      val subquery = from(ordrs)((o) =>
        groupBy(o.monthId)
-         compute (sum(o.qty))
-         orderBy (o.monthId))
+         compute sum(o.qty)
+         orderBy o.monthId)
 
      val mainquery = join(months, subquery)((m, sq) =>
        select(m, sq.measures)
@@ -46,14 +47,14 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
      val res = transaction { mainquery.toList }
 
      res.size should equal(2)
-     res(0)._2 should equal(Some(60))
+     res.head._2 should equal(Some(60))
      res(1)._2 should equal(Some(15))
    }
    test("return the correct results if a left outer join is used"){
      val subquery = from(ordrs)((o) =>
        groupBy(o.monthId)
-         compute (sum(o.qty))
-         orderBy (o.monthId))
+         compute sum(o.qty)
+         orderBy o.monthId)
 
      val mainquery =
        join(months, subquery.leftOuter)((m, sq) =>
@@ -63,13 +64,13 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
 
      val res = transaction {
        mainquery.map(e =>
-         if(e._2 == None) None
+         if(e._2.isEmpty) None
          else e._2.get.measures
        ).toSeq
      }
 
      res.size should equal(12)
-     res(0) should equal(Some(60))
+     res.head should equal(Some(60))
      res(1) should equal(None)
      res(2) should equal(None)
      res(3) should equal(None)
@@ -92,19 +93,19 @@ import org.squeryl.test.PrimitiveTypeModeForTests._
 
 object LeftJoinSchema extends Schema {
 
- val items = table[Item]("Item")
+ val items: Table[Item] = table[Item]("Item")
 
- val months = table[Month]("Month")
+ val months: Table[Month] = table[Month]("Month")
 
- val ordrs = table[Ordr]("Ordr")
+ val ordrs: Table[Ordr] = table[Ordr]("Ordr")
 
- override def drop = super.drop
+ override def drop: Unit = super.drop()
 }
 
 class Item(val id: Int, val name: String)
 
 class Month(val id: Int, val name: String) {
- override def toString = "Mont("+id + ":" + name + ")"
+ override def toString: String = "Mont("+id + ":" + name + ")"
 }
 
 class Ordr(val id: Int, val monthId: Int, val itemId: Int, val qty: Int)

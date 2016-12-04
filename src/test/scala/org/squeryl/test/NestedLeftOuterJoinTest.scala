@@ -5,10 +5,10 @@ import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl.framework._
 
 object TestSchema extends Schema {
-  val a = table[A]
-  val b = table[B]
+  val a: Table[A] = table[A]
+  val b: Table[B] = table[B]
 
-  override def drop = super.drop
+  override def drop: Unit = super.drop()
 }
 
 class A(val id: Int, val name: String) extends KeyedEntity[Int]
@@ -20,7 +20,7 @@ abstract class NestedLeftOuterJoinTest extends SchemaTester with RunTestsInsideT
 
   def schema = TestSchema
 
-  def testInnerJoin() = {
+  def testInnerJoin(): Unit = {
     val q0 = from(TestSchema.b)( b => select(b) )
 
     val q1 = from(TestSchema.a, q0) ( (a, b) =>
@@ -45,7 +45,7 @@ abstract class NestedLeftOuterJoinTest extends SchemaTester with RunTestsInsideT
 
     TestSchema.b.insert(new B(1, "b one", 1))
 
-    testInnerJoin
+    testInnerJoin()
 
 
     val q0 = from(TestSchema.b)( b => select(b) )
@@ -69,12 +69,12 @@ abstract class NestedLeftOuterJoinTest extends SchemaTester with RunTestsInsideT
     q.headOption.map { (result) =>
       val (_, b) = result
 
-      b should not equal(None)
+      b should not equal None
     }
   }
 
   def checkJoinQuery(q: Query[(A, B)]) {
-    q.headOption should not equal(None)
+    q.headOption should not equal None
   }
 
 

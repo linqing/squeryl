@@ -16,7 +16,7 @@ package org.squeryl.test.demo
  * limitations under the License.
  ***************************************************************************** */
 import org.squeryl.test.PrimitiveTypeModeForTests._
-import org.squeryl.{Query, KeyedEntity, Schema}
+import org.squeryl.{KeyedEntity, Query, Schema, Table}
 import org.squeryl.dsl.GroupWithMeasures
 import org.squeryl.framework.{DBConnector, RunTestsInsideTransaction, SchemaTester}
 
@@ -26,12 +26,12 @@ class MusicDbObject extends KeyedEntity[Long] {
   val id: Long = 0
 }
 
-case class Artist(val name:String) extends MusicDbObject {
+case class Artist(name:String) extends MusicDbObject {
 
   // this returns a Query[Song] which is also an Iterable[Song] :
-  def songs = from(MusicDb.songs)(s => where(s.artistId === id) select(s))
+  def songs: Query[Song] = from(MusicDb.songs)(s => where(s.artistId === id) select(s))
 
-  def newSong(title: String, filePath: Option[String], year: Int) =
+  def newSong(title: String, filePath: Option[String], year: Int): Song =
     MusicDb.songs.insert(new Song(title, id, filePath, year))
 }
 
@@ -49,12 +49,12 @@ class Song(val title: String, val artistId: Long, val filePath: Option[String], 
   import MusicDb._
   
   // An alternative (shorter) syntax for single table queries :
-  def artist = artists.where(a => a.id === artistId).single
+  def artist: Artist = artists.where(a => a.id === artistId).single
 
   // Another alternative for lookup by primary key, since Artist is a
   // KeyedEntity[Long], it's table has a lookup[Long](k: Long)
   // method available :
-  def lookupArtist = artists.lookup(artistId)
+  def lookupArtist: Option[Artist] = artists.lookup(artistId)
 }
 
 class Playlist(val name: String, val path: String) extends MusicDbObject {
@@ -62,14 +62,14 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   import MusicDb._
 
   // a two table join : 
-  def songsInPlaylistOrder =
+  def songsInPlaylistOrder: Query[Song] =
     from(playlistElements, songs)((ple, s) =>
       where(ple.playlistId === id and ple.songId === s.id)
       select(s)
       orderBy(ple.songNumber asc)
     )
 
-  def addSong(s: Song) = {
+  def addSong(s: Song): PlaylistElement = {
 
     // Note how this query can be implicitly converted to an Int since it returns
     // at most one row, this applies to all single column aggregate queries with no groupBy clause.
@@ -84,10 +84,10 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
     playlistElements.insert(new PlaylistElement(nextSongNumber, id, s.id))
   }
 
-  def removeSong(song: Song) =
+  def removeSong(song: Song): Int =
     playlistElements.deleteWhere(ple => ple.songId === song.id)
 
-  def removeSongOfArtist(artist: Artist) =
+  def removeSongOfArtist(artist: Artist): Int =
     playlistElements.deleteWhere(ple =>
       (ple.playlistId === id) and
       (ple.songId in from(songsOf(artist.id))(s => select(s.id)))
@@ -104,7 +104,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
     )
 
   // Queries are nestable just as they would in SQL
-  def songCountForAllArtists  =
+  def songCountForAllArtists: Query[(Artist, Long)] =
     from(_songCountByArtistId, artists)((sca,a) =>
       where(sca.key === a.id)
       select((a, sca.measures))
@@ -113,13 +113,13 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   // Unlike SQL, a function that returns a query can be nested
   // as if it were a query, notice the nesting of 'songsOf'
   // allowing DRY persistence layers as reuse is enhanced.
-  def latestSongFrom(artistId: Long) =
+  def latestSongFrom(artistId: Long): Option[Song] =
     from(songsOf(artistId))(s =>
       select(s)
       orderBy(s.id desc)
     ).headOption
 
-  def songsOf(artistId: Long) =
+  def songsOf(artistId: Long): Query[Song] =
     from(playlistElements, songs)((ple,s) =>
       where(id === ple.playlistId and ple.songId === s.id and s.artistId === artistId)
       select(s)
@@ -135,30 +135,30 @@ class Rating(var userId: Long, var appreciationScore: Int, var songId: Int)
 
 object MusicDb extends Schema {
 
-  val artists = table[Artist]
-  val songs = table[Song]
-  val playlists = table[Playlist]
-  val playlistElements = table[PlaylistElement]
-  val ratings = table[Rating]
+  val artists: Table[Artist] = table[Artist]
+  val songs: Table[Song] = table[Song]
+  val playlists: Table[Playlist] = table[Playlist]
+  val playlistElements: Table[PlaylistElement] = table[PlaylistElement]
+  val ratings: Table[Rating] = table[Rating]
 
   // drop (schema) is normaly protected... for safety, here we live dangerously !
-  override def drop = super.drop
+  override def drop: Unit = super.drop()
 }
 
 class TestData{
   import MusicDb._
 
-  val herbyHancock = artists.insert(new Artist("Herby Hancock"))
-  val ponchoSanchez = artists.insert(new Artist("Poncho Sanchez"))
-  val mongoSantaMaria = artists.insert(new Artist("Mongo Santa Maria"))
-  val theMeters = artists.insert(new Artist("The Meters"))
+  val herbyHancock: Artist = artists.insert(Artist("Herby Hancock"))
+  val ponchoSanchez: Artist = artists.insert(Artist("Poncho Sanchez"))
+  val mongoSantaMaria: Artist = artists.insert(Artist("Mongo Santa Maria"))
+  val theMeters: Artist = artists.insert(Artist("The Meters"))
 
-  val watermelonMan = herbyHancock.newSong("Watermelon Man", None, 1962)
-  val besameMama = mongoSantaMaria.newSong("Besame Mama", Some("c:/MyMusic/besameMama.flac"), 1998)
-  val freedomSound = ponchoSanchez.newSong("Freedom Sound", None, 1997)
-  val funkifyYouLife = theMeters.newSong("Funkify Your Life", None,1969)
-  val goodOldFunkyMusic = theMeters.newSong("Good old Funky Music", None, 1968)
-  val funkAndLatinJazz = playlists.insert(new Playlist("Funk and Latin Jazz", "c:/myPlayLists/funkAndLatinJazz"))
+  val watermelonMan: Song = herbyHancock.newSong("Watermelon Man", None, 1962)
+  val besameMama: Song = mongoSantaMaria.newSong("Besame Mama", Some("c:/MyMusic/besameMama.flac"), 1998)
+  val freedomSound: Song = ponchoSanchez.newSong("Freedom Sound", None, 1997)
+  val funkifyYouLife: Song = theMeters.newSong("Funkify Your Life", None,1969)
+  val goodOldFunkyMusic: Song = theMeters.newSong("Good old Funky Music", None, 1968)
+  val funkAndLatinJazz: Playlist = playlists.insert(new Playlist("Funk and Latin Jazz", "c:/myPlayLists/funkAndLatinJazz"))
 }
 
 abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction {
@@ -168,7 +168,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
 
   import schema._
 
-  var sharedTestData : TestData = null
+  var sharedTestData : TestData = _
 
   override def prePopulate(){
     sharedTestData = new TestData()

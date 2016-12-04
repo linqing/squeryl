@@ -2,7 +2,7 @@ package org.squeryl.test.mutablerelations
 
 import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl._
-import org.squeryl.dsl.CompositeKey2
+import org.squeryl.dsl.{CompositeKey2, StatefulManyToMany, StatefulManyToOne, StatefulOneToMany}
 
 trait SchoolDb2Object extends KeyedEntity[Long] {
   val id: Long = 0
@@ -10,7 +10,7 @@ trait SchoolDb2Object extends KeyedEntity[Long] {
 
 class Professor(val lastName: String) extends SchoolDb2Object {
 
-  lazy val courses = SchoolDb2.courseAssignments.leftStateful(this)
+  lazy val courses: StatefulManyToMany[Course, CourseAssignment] = SchoolDb2.courseAssignments.leftStateful(this)
 }
 
 class Course(val subjectId: Long) extends SchoolDb2Object {
@@ -18,63 +18,63 @@ class Course(val subjectId: Long) extends SchoolDb2Object {
   def this() = this(0)
 
   // Lets support the case where a course can have more than one professor
-  lazy val professors = SchoolDb2.courseAssignments.rightStateful(this)
+  lazy val professors: StatefulManyToMany[Professor, CourseAssignment] = SchoolDb2.courseAssignments.rightStateful(this)
 
-  lazy val students = SchoolDb2.courseSubscriptions.leftStateful(this)
+  lazy val students: StatefulManyToMany[Student, CourseSubscription] = SchoolDb2.courseSubscriptions.leftStateful(this)
 
-  lazy val subject = SchoolDb2.subjectToCourses.rightStateful(this)
+  lazy val subject: StatefulManyToOne[Subject] = SchoolDb2.subjectToCourses.rightStateful(this)
 }
 
 class Student(val firstName: String, val lastName: String) extends SchoolDb2Object {
 
-  lazy val courses = SchoolDb2.courseSubscriptions.rightStateful(this)
+  lazy val courses: StatefulManyToMany[Course, CourseSubscription] = SchoolDb2.courseSubscriptions.rightStateful(this)
 }
 
 class Subject(val name: String) extends SchoolDb2Object {
 
-  lazy val courses = SchoolDb2.subjectToCourses.leftStateful(this)
+  lazy val courses: StatefulOneToMany[Course] = SchoolDb2.subjectToCourses.leftStateful(this)
 }
 
 class CourseSubscription(val courseId: Long, val studentId: Long, val grade: Float) extends KeyedEntity[CompositeKey2[Long,Long]] {
 
-  def id = compositeKey(courseId, studentId)
+  def id: CompositeKey2[Long, Long] = compositeKey(courseId, studentId)
 }
 
 class CourseAssignment(val courseId: Long, val professorId: Long) extends KeyedEntity[CompositeKey2[Long,Long]] {
 
-  def id = compositeKey(courseId, professorId)
+  def id: CompositeKey2[Long, Long] = compositeKey(courseId, professorId)
 }
 
 
 object SchoolDb2 extends Schema {
 
-  val professors = table[Professor]
+  val professors: Table[Professor] = table[Professor]
 
-  val students = table[Student]
+  val students: Table[Student] = table[Student]
 
-  val courses = table[Course]
+  val courses: Table[Course] = table[Course]
 
-  val subjects = table[Subject]
+  val subjects: Table[Subject] = table[Subject]
 
-  val courseAssignments =
+  val courseAssignments: _root_.org.squeryl.test.PrimitiveTypeModeForTests.ManyToManyRelationImpl[Professor, Course, CourseAssignment] =
     manyToManyRelation(professors, courses).
     via[CourseAssignment]((p,c,a) => (a.professorId === p.id, a.courseId === c.id))
 
-  val courseSubscriptions =
+  val courseSubscriptions: _root_.org.squeryl.test.PrimitiveTypeModeForTests.ManyToManyRelationImpl[Course, Student, CourseSubscription] =
     manyToManyRelation(courses, students).
     via[CourseSubscription]((c,s,cs) => (cs.studentId === s.id, c.id === cs.courseId))
 
-  val subjectToCourses =
+  val subjectToCourses: _root_.org.squeryl.test.PrimitiveTypeModeForTests.OneToManyRelationImpl[Subject, Course] =
     oneToManyRelation(subjects, courses).
     via((s,c) => c.subjectId === s.id)
 
   // the default constraint for all foreign keys in this schema :
-  override def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration) =
+  override def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration): Unit =
     foreignKeyDeclaration.constrainReference
 
-  override def drop = {
-    Session.cleanupResources
-    super.drop
+  override def drop(): Unit = {
+    Session.cleanupResources()
+    super.drop()
   }
 }
 
@@ -89,17 +89,17 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     import schema._
 
-    val professeurTournesol = professors.insert(new Professor("Tournesol"))
-    val madProfessor = professors.insert(new Professor("Mad Professor"))
+    val professeurTournesol: Professor = professors.insert(new Professor("Tournesol"))
+    val madProfessor: Professor = professors.insert(new Professor("Mad Professor"))
 
-    val philosophy = subjects.insert(new Subject("Philosophy"))
-    val chemistry = subjects.insert(new Subject("Chemistry"))
-    val physics = subjects.insert(new Subject("Physic"))
-    val computationTheory = subjects.insert(new Subject("Computation Theory"))
+    val philosophy: Subject = subjects.insert(new Subject("Philosophy"))
+    val chemistry: Subject = subjects.insert(new Subject("Chemistry"))
+    val physics: Subject = subjects.insert(new Subject("Physic"))
+    val computationTheory: Subject = subjects.insert(new Subject("Computation Theory"))
 
 
-    val chemistryCourse = courses.insert(new Course(chemistry.id))
-    val physicsCourse = courses.insert(new Course(physics.id))
+    val chemistryCourse: Course = courses.insert(new Course(chemistry.id))
+    val physicsCourse: Course = courses.insert(new Course(physics.id))
   }
 
 
@@ -145,7 +145,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     assertEquals(professeurTournesol.lastName, profT.lastName, 'testMany2ManyAssociationsFromRightSide)
 
-    professeurTournesol.courses.refresh
+    professeurTournesol.courses.refresh()
 
     val ca = professeurTournesol.courses.associations.head : CourseAssignment
 
@@ -162,7 +162,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     physicsCourse.professors.head : Professor
 
-    professeurTournesol.courses.refresh
+    professeurTournesol.courses.refresh()
 
     assertEquals(physicsCourse.professors.dissociate(professeurTournesol), true, 'testMany2ManyAssociationsFromRightSide)
     assertEquals(physicsCourse.professors.dissociate(professeurTournesol), false, 'testMany2ManyAssociationsFromRightSide)
@@ -234,7 +234,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
       philosophyCourse3PMFriday.id,
       'testOneToMany)
 
-    philosophy.courses.refresh
+    philosophy.courses.refresh()
 
     // verify that the reassociation worked, which means that
     // 1) : the set of philosophy.courses was reduced properly

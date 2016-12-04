@@ -10,7 +10,7 @@ object LogicalBooleanObjTests {
   class Dummy(val id:Int, val p1:Int, val p2:Int) extends KeyedEntity[Int]
 
   object TestSchema extends Schema {
-    val dummy = table[Dummy]
+    val dummy: Table[Dummy] = table[Dummy]
   }
 
 }
@@ -28,8 +28,8 @@ abstract class LogicalBooleanObjTests extends SchemaTester with RunTestsInsideTr
     //Session.currentSession.setLogger(System.err.println(_))
 
     val q0 = from(dummy)(d => where(LogicalBoolean.and(Seq()))
-                               select(d)).toList
-    q0 should have length(5)
+                               select d).toList
+    q0 should have length 5
     
     val q1 = from(dummy)(d => where(LogicalBoolean.and(Seq(d.id===1)))
                               select(d)).toList
