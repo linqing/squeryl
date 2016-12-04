@@ -339,10 +339,10 @@ class TestInstance(schema : SchoolDb){
   val feb2010: Date = dateFormat.parse("2010-02-01")
   val feb2011: Date = dateFormat.parse("2011-02-01")
 
-  val groupTheory: Course = courses.insert(Course("Group Theory", jan2009, Some(may2009), 0, None, false))
-  val heatTransfer: Course = courses.insert(Course("Heat Transfer", feb2009, None, 3, Some(1234), false))
-  val counterpoint: Course = courses.insert(Course("Counterpoint", feb2010, None, 0, None, true))
-  val mandarin: Course = courses.insert(Course("Mandarin 101", feb2010, None, 0, None, true))
+  val groupTheory: Course = courses.insert(Course("Group Theory", jan2009, Some(may2009), 0, None, confirmed = false))
+  val heatTransfer: Course = courses.insert(Course("Heat Transfer", feb2009, None, 3, Some(1234), confirmed = false))
+  val counterpoint: Course = courses.insert(Course("Counterpoint", feb2010, None, 0, None, confirmed = true))
+  val mandarin: Course = courses.insert(Course("Mandarin 101", feb2010, None, 0, None, confirmed = true))
 
   courseSubscriptions.insert(new CourseSubscription(groupTheory.id, xiao.id))
   courseSubscriptions.insert(new CourseSubscription(heatTransfer.id, gontran.id))
@@ -447,6 +447,7 @@ abstract class CommonTableExpressions extends SchoolDbTestBase {
   }
 }
 
+//noinspection ScalaUselessExpression
 abstract class SchoolDbTestRun extends SchoolDbTestBase {
   self: DBConnector =>
 
