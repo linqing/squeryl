@@ -41,7 +41,7 @@ object Utils {
       s()
     }
     catch {
-      case e: Exception => valueOnFail
+      case _: Exception => valueOnFail
     }
 
   def close(s: Statement): Unit =
@@ -49,7 +49,7 @@ object Utils {
       s.close()
     }
     catch {
-      case e: SQLException =>
+      case _: SQLException =>
     }
 
   def close(rs: ResultSet): Unit =
@@ -57,7 +57,7 @@ object Utils {
       rs.close()
     }
     catch {
-      case e: SQLException =>
+      case _: SQLException =>
     }
 
   def close(c: Connection): Unit =
@@ -65,7 +65,7 @@ object Utils {
       c.close()
     }
     catch {
-      case e: SQLException =>
+      case _: SQLException =>
     }
 
   private class DummyQueryElements[Cond](override val whereClause: Option[() => LogicalBoolean]) extends QueryElements[Cond]

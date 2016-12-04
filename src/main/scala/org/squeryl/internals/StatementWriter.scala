@@ -101,7 +101,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     _writeIndentSpaces(indentWidth)
 
   private def _writeIndentSpaces(c: Int) =
-    for (i <- 1 to c)
+    for (_ <- 1 to c)
       _append(" ")
 
   def nextLine(): Unit = {

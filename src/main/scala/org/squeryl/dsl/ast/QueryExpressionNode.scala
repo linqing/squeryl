@@ -159,7 +159,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       }
 
       var idGen = 0
-      visitDescendants((node, parent, i) => {
+      visitDescendants((node, parent, _) => {
         node.parent = parent
 
         if (node.isInstanceOf[UniqueIdInAliaseRequired]) {
@@ -182,7 +182,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
     for {
       ref <- collectCteRefs()
-      (cte, src) <- cteNodes.find(_._1.sameRoot_?(ref))
+      (_, src) <- cteNodes.find(_._1.sameRoot_?(ref))
     } {
       copyUniqueIds(src, collectAliasedNodes(ref))
     }
@@ -190,7 +190,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   private def collectCteRefs(): List[QueryExpressionNode[_]] = {
     val buf = new collection.mutable.ArrayBuffer[QueryExpressionNode[_]]()
-    visitDescendants((node, parent, i) => {
+    visitDescendants((node, _, _) => {
       if (!commonTableExpressions.contains(node) &&
         node.isInstanceOf[QueryExpressionNode[_]] &&
         commonTableExpressions.exists(
@@ -205,7 +205,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   private def collectAliasedNodes(e: ExpressionNode): List[UniqueIdInAliaseRequired] = {
     val buf = new collection.mutable.ArrayBuffer[UniqueIdInAliaseRequired]()
-    e.visitDescendants((node, parent, i) => {
+    e.visitDescendants((node, _, _) => {
       if ((node ne e) && node.isInstanceOf[UniqueIdInAliaseRequired]) {
         buf += node.asInstanceOf[UniqueIdInAliaseRequired]
       }

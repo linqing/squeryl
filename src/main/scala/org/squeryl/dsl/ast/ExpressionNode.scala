@@ -383,7 +383,7 @@ class ConstantExpressionNodeList[T](val value: Traversable[T], mapper: OutMapper
     if (sw.isForDisplay)
       sw.write(ConstantExpressionNodeList.this.value.map(e => "'" + e + "'").mkString(","))
     else {
-      sw.write(ConstantExpressionNodeList.this.value.toSeq.map(z => "?").mkString(","))
+      sw.write(ConstantExpressionNodeList.this.value.toSeq.map(_ => "?").mkString(","))
       ConstantExpressionNodeList.this.value.foreach(z =>
         sw.addParam(ConstantExpressionNodeListParam(z.asInstanceOf[AnyRef], ConstantExpressionNodeList.this))
       )
@@ -524,9 +524,9 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
 
   def dumpAst: String = {
     val sb = new java.lang.StringBuilder
-    visitDescendants { (n, parent, d: Int) =>
+    visitDescendants { (n, _, d: Int) =>
       val c = 4 * d
-      for (i <- 1 to c) sb.append(' ')
+      for (_ <- 1 to c) sb.append(' ')
       sb.append(n)
       sb.append("\n")
     }

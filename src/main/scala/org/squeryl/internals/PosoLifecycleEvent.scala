@@ -27,7 +27,7 @@ class LifecycleEventInvoker(i: Iterable[LifecycleEvent], owner: View[_]) extends
 
     val f = i.filter(_.e == Create).map(_.callback)
     if (f.size > 1) org.squeryl.internals.Utils.throwError(owner.name + " has more than one factory defined.")
-    f.headOption.getOrElse((r: AnyRef) => {
+    f.headOption.getOrElse((_: AnyRef) => {
       null
     })
   }
@@ -83,7 +83,7 @@ trait BaseLifecycleEventPercursor {
 
 class PosoFactoryPercursorTable[A](target: View[_]) extends BaseLifecycleEventPercursor {
   def is(f: => A) = new LifecycleEvent(Seq(target), PosoLifecycleEvent.Create,
-    (r: AnyRef) => {
+    (_: AnyRef) => {
       val a = f
       a.asInstanceOf[AnyRef]
     }

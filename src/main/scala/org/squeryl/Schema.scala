@@ -468,12 +468,12 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     // Validate that autoIncremented is not used on other fields than KeyedEntity[A].id :
     // since it is not yet unsupported :
     for (ca <- colAss) ca match {
-      case cga: CompositeKeyAttributeAssignment =>
+      case _: CompositeKeyAttributeAssignment =>
       case caa: ColumnAttributeAssignment =>
         for (ca <- caa.columnAttributes if ca.isInstanceOf[AutoIncremented] && !caa.left.isIdFieldOfKeyedEntity)
           org.squeryl.internals.Utils.throwError("Field " + caa.left.nameOfProperty + " of table " + table.name +
             " is declared as autoIncremented, auto increment is currently only supported on KeyedEntity[A].id")
-      case dva: Any =>
+      case _: Any =>
     }
   }
 

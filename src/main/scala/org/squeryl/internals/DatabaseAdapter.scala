@@ -366,7 +366,7 @@ trait DatabaseAdapter {
         //val t = jdbcTypeConstantFor(fieldMetaData.nativeJdbcType)
         //s.setObject(i, convertToJdbcValue(fieldMetaData.get(o)))
         s.setObject(i, convertToJdbcValue(fieldMetaData.getNativeJdbcValue(o)))
-      case ConstantExpressionNodeListParam(v, constantExpressionNodeList) =>
+      case ConstantExpressionNodeListParam(v, _) =>
         s.setObject(i, convertToJdbcValue(v))
     }
 
@@ -768,7 +768,7 @@ trait DatabaseAdapter {
     "alter table " + quoteName(foreignKeyTable.prefixedName) + " drop constraint " + quoteName(fkName)
 
   def dropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String, session: AbstractSession): Unit =
-    execFailSafeExecute(writeDropForeignKeyStatement(foreignKeyTable, fkName), e => true)
+    execFailSafeExecute(writeDropForeignKeyStatement(foreignKeyTable, fkName), _ => true)
 
   def isTableDoesNotExistException(e: SQLException): Boolean
 

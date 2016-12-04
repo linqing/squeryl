@@ -273,7 +273,7 @@ trait QueryDsl
   class CountSubQueryableQuery(q: Queryable[_]) extends Query[Long] with ScalarQuery[Long] {
 
     private val _inner: Query[Measures[Long]] =
-      from(q)(r => compute(_countFunc))
+      from(q)(_ => compute(_countFunc))
 
     def iterator: Iterator[Long] = _inner.map(m => m.measures).iterator
 

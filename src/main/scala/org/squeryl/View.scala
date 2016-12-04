@@ -71,7 +71,7 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
     if (classOf[PersistenceStatus].isAssignableFrom(classOfT))
       (t: T) => t.asInstanceOf[PersistenceStatus]._isPersisted = true
     else
-      (t: T) => {}
+      (_: T) => {}
 
   private val _posoFactory =
     FieldMetaData.factory.createPosoFactory(posoMetaData)

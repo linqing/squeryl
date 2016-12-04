@@ -200,7 +200,7 @@ class OracleAdapter extends DatabaseAdapter {
         s
     }
     catch {
-      case e: CouldNotShrinkIdentifierException =>
+      case _: CouldNotShrinkIdentifierException =>
         org.squeryl.internals.Utils.throwError("could not make a unique identifier with '" + s + "'")
     }
 

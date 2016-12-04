@@ -289,7 +289,7 @@ class FieldMetaData(
         res
     }
     catch {
-      case e: IllegalArgumentException => org.squeryl.internals.Utils.throwError(wrappedFieldType.getName + " used on " + o.getClass.getName)
+      case _: IllegalArgumentException => org.squeryl.internals.Utils.throwError(wrappedFieldType.getName + " used on " + o.getClass.getName)
     }
 
   def getNativeJdbcValue(o: AnyRef): AnyRef = {
@@ -449,7 +449,7 @@ object FieldMetaData {
         v match {
           case Some(None) => true
           case null => true
-          case a: Any => false
+          case _: Any => false
         }
 
       if (deductionFailed) {

@@ -43,12 +43,12 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
 
     val st =
       (_dbAdapter.supportsAutoIncrementInColumnDeclaration, posoMetaData.primaryKey) match {
-        case (true, a: Any) => sess.connection.prepareStatement(sw.statement, Statement.RETURN_GENERATED_KEYS)
+        case (true, _: Any) => sess.connection.prepareStatement(sw.statement, Statement.RETURN_GENERATED_KEYS)
         case (false, Some(Left(pk: FieldMetaData))) =>
           val autoIncPk = new Array[String](1)
           autoIncPk(0) = pk.columnName
           sess.connection.prepareStatement(sw.statement, autoIncPk)
-        case a: Any => sess.connection.prepareStatement(sw.statement)
+        case _: Any => sess.connection.prepareStatement(sw.statement)
       }
 
     try {
@@ -71,7 +71,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
             rs.close()
           }
         }
-        case a: Any =>
+        case _: Any =>
       }
     }
     finally {
@@ -88,7 +88,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
   //  def insert(t: Query[T]) = org.squeryl.internals.Utils.throwError("not implemented")
 
   def insert(e: Iterable[T]): Unit =
-    _batchedUpdateOrInsert(e, t => posoMetaData.fieldsMetaData.filter(fmd => !fmd.isAutoIncremented && fmd.isInsertable), isInsert = true, checkOCC = false)
+    _batchedUpdateOrInsert(e, _ => posoMetaData.fieldsMetaData.filter(fmd => !fmd.isAutoIncremented && fmd.isInsertable), isInsert = true, checkOCC = false)
 
   /**
     * isInsert if statement is insert otherwise update
@@ -256,7 +256,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
     vxn.parent = Some(us)
 
     var idGen = 0
-    us.visitDescendants((node, parent, i) => {
+    us.visitDescendants((node, parent, _) => {
 
       if (node.parent.isEmpty)
         node.parent = parent
