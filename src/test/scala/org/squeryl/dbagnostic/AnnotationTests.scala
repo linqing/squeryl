@@ -16,11 +16,9 @@ package org.squeryl.dbagnostic
  * limitations under the License.
  ***************************************************************************** */
 
-import org.squeryl.KeyedEntity
-import org.squeryl.annotations.{Row, Column}
-import org.squeryl.Schema
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.squeryl.{KeyedEntity, Schema, Table}
+import org.squeryl.annotations.{Column, Row}
+import org.scalatest.{Assertion, FunSuite, Matchers}
 import org.squeryl.test.PrimitiveTypeModeForTests
 
 
@@ -76,7 +74,7 @@ class AnnotationTests extends FunSuite with Matchers {
     var i:Option[Int]
   )
 
-  def allTests() = {
+  def allTests(): Unit = {
     //rudimentaryTests
   }
 
@@ -84,16 +82,16 @@ class AnnotationTests extends FunSuite with Matchers {
 
     import PrimitiveTypeModeForTests._
     
-    val descendantOfKeyedObjects = table[DescendantOfKeyedObject]
+    val descendantOfKeyedObjects: Table[DescendantOfKeyedObject] = table[DescendantOfKeyedObject]
 
-    val nailCutters = table[NailCutter]
+    val nailCutters: Table[NailCutter] = table[NailCutter]
 
-    val toasters = table[Toaster]
+    val toasters: Table[Toaster] = table[Toaster]
   }
 
   //test("MetaData"){
 
-  def reflectionBrokenIn_2_9_0_RCx = {
+  def reflectionBrokenIn_2_9_0_RCx: Assertion = {
 
     val ti = new ToastersInc
     import ti._

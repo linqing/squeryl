@@ -223,7 +223,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val q: Query[String] =
       from(subjects)(s =>
         where(s.name === "Philosophy")
-          select &(from(subjects)(s2 => where(s2.name === s.name) select (s2.name)))
+          select &(from(subjects)(s2 => where(s2.name === s.name) select s2.name))
       )
 
     assertEquals(1, q.toList.length, "Could not find row")
@@ -435,7 +435,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
       physicsCourse.professors.associate(professeurTournesol)
     }
     catch {
-      case e:RuntimeException =>
+      case _:RuntimeException =>
         exceptionThrown = true
         sp.foreach(s.connection.rollback(_))
     }

@@ -6,7 +6,7 @@ trait DBConnector {
 
   def sessionCreator() : Option[() => AbstractSession]
 
-  lazy val config = {
+  lazy val config: FileConfigReader = {
     new FileConfigReader("org.squeryl.tests.cfg")
   }
 

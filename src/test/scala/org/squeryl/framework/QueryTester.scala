@@ -8,22 +8,22 @@ trait QueryTester extends Matchers {
 
   var logQueries = false
 
-  var validateFirstAndExit = -1
+  var validateFirstAndExit: Int = -1
 
   var dumpAst = false
 
   var doNotExecute = false
 
-  def activateWorkbenchMode() = {
+  def activateWorkbenchMode(): Unit = {
     logQueries = true
     dumpAst = true
     validateFirstAndExit = 0
   }
 
-  def loggerOn() =
+  def loggerOn(): Unit =
     Session.currentSession.setLogger((s:String) => println(s))
 
-  def log(queryName: Symbol, query:Query[_]) = {
+  def log(queryName: Symbol, query:Query[_]): Unit = {
 
     println(queryName + " :")
     println(query)
@@ -74,7 +74,7 @@ trait QueryTester extends Matchers {
       validateFirstAndExit += 1
   }
 
-  def passed(s: Symbol) = {} //println(s )
+  def passed(s: Symbol): Unit = {} //println(s )
 }
 
 

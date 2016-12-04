@@ -196,7 +196,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     for(s0 <- s ) {
       var sCnt = 0
-      for(c <- s0.courses) {
+      for(_ <- s0.courses) {
         cnt += 1
         sCnt += 1
       }

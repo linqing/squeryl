@@ -10,7 +10,7 @@ abstract class SchemaTester extends DbTestBase {
 
   def schema : Schema
 
-  def prePopulate() = {}
+  def prePopulate(): Unit = {}
 
   override def beforeAll(){
 
@@ -45,7 +45,7 @@ abstract class SchemaTester extends DbTestBase {
 abstract class DbTestBase extends FunSuite with BeforeAndAfterAll with BeforeAndAfterEach with Matchers {
   self: DBConnector =>
 
-  def isIgnored(testName: String) =
+  def isIgnored(testName: String): Boolean =
     sessionCreator().isEmpty || ignoredTests.contains(testName)
 
 

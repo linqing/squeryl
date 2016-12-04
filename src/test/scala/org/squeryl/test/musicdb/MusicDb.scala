@@ -199,7 +199,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     )
 
   lazy val songsFeaturingPonchoNestedInWhere: Query[Song] =
-    from(songs, artists)((s,a) =>
+    from(songs, artists)((s, _) =>
       where(
         s.interpretId in from(artists)(a => where(a.firstName === "Poncho") select a.id)
       )
@@ -272,7 +272,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     ).distinct
 
   def songsFeaturingPonchoNestedInWhereWithString: Query[Song] =
-    from(songs, artists)((s,a) =>
+    from(songs, artists)((s, _) =>
       where(
         s.title in from(songs)(s => where(s.id === 123) select s.title)
       )
@@ -281,10 +281,11 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     )
 
   def countCds(cds: Queryable[Cd]): Query[Measures[Long]] =
-    from(cds)(c => compute(count))
+    from(cds)(_ => compute(count))
 
   def countCds2(cds: Queryable[Cd]) = cds.Count
 
+  //noinspection TypeAnnotation
   def avgSongCountForAllArtists =
     from(
       from(artists, songs)((a,s) =>
@@ -513,7 +514,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
         passed('testUpperAndLowerFuncs)
     }
     catch {
-      case e: UnsupportedOperationException => println("testUpperAndLowerFuncs: regex not supported by database adapter")
+      case _: UnsupportedOperationException => println("testUpperAndLowerFuncs: regex not supported by database adapter")
     }
   }
 
@@ -1041,7 +1042,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     assertEquals(congaBlue.title, r2.title, 'testAggregateQueryOnRightHandSideOfInOperator)
 
     // should compile (valid SQL even though phony...) :
-    artists.where(_.age in from(artists)(a=> compute(count)))
+    artists.where(_.age in from(artists)(_ => compute(count)))
 
     // should compile, since SQL allows comparing nullable cols against non nullable ones :
     artists.where(_.id in from(artists)(a=> compute(max(a.age))))

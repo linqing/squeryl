@@ -504,7 +504,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
     (q2:Long) should equal(5L)
 
     val q3 =
-      from(courseSubscriptions)(cs =>
+      from(courseSubscriptions)(_ =>
         compute(count)
       )
 
@@ -519,6 +519,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       compute(avg(s.age))
     )
 
+  //noinspection TypeAnnotation
   def avgStudentAgeFunky() =
     from(students)(s =>
       compute(avg(s.age), avg(s.age) + 3, avg(s.age) / count, count + 6)
@@ -1786,7 +1787,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
             where(s.addressId in
               from(addresses)((a2) =>
                 where(a2.id === a.id and s.addressId === a2.id)
-                  select (a2.id)))
+                  select a2.id))
             select a.id)))
           select s
       )
@@ -1826,7 +1827,7 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
   test("UpdateSetAll") {
     update(students)(s => setAll(s.age := Some(30)))
 
-    val expected:Long = from(students)(s => compute(count))
+    val expected:Long = from(students)(_ => compute(count))
     val is:Long = from(students)(s => where(s.age === 30)compute count)
 
     assert(expected == is, "expected :\n " + expected + "\ngot : \n " + is)
@@ -1890,7 +1891,7 @@ abstract class Issue14 extends DbTestBase with QueryTester {
         val seqName = (new OracleAdapter).createSequenceName(Issue14Schema.professors.posoMetaData.findFieldMetaDataForProperty("id").get)
         try {stmt.execute("create sequence " + seqName)}
         catch {
-          case e:SQLException =>
+          case _:SQLException =>
         }
       }
       transaction {

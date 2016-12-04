@@ -16,7 +16,7 @@ abstract class PrimitiveArrayTest extends SchemaTester with RunTestsInsideTransa
 
   test("can insert and query integer, double, and long array values in database") {
     transaction {
-      schema.drop
+      schema.drop()
       schema.create()
       swimmers.insert(new Swimmer(1, Array(10.55, 12.99, 15.32), Array(100, 110, 20), Array(9876543210L, 123456789L), Array("testing", "stuff")))
     }
@@ -45,7 +45,7 @@ abstract class PrimitiveArrayTest extends SchemaTester with RunTestsInsideTransa
   }
   test("can update integer, double, and long array values in database") {
     transaction {
-      schema.drop
+      schema.drop()
       schema.create()
       swimmers.insert(new Swimmer(1, Array(10.55, 12.99, 15.32), Array(100, 110, 20), Array(9876543210L, 123456789L), Array("testing", "stuff")))
     }
